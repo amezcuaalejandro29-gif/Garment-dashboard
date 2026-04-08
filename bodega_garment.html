@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Garment — Bodega</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
+:root{
+  --bg:#0f0f0f;--bg2:#161616;--bg3:#1e1e1e;--bg4:#252525;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#f0f0f0;--text2:#888;--text3:#484848;
+  --green:#22c55e;--green-dim:rgba(34,197,94,0.13);
+  --amber:#f59e0b;--amber-dim:rgba(245,158,11,0.13);
+  --red:#ef4444;--red-dim:rgba(239,68,68,0.13);
+  --blue:#3b82f6;--blue-dim:rgba(59,130,246,0.13);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
+.login-overlay{position:fixed;inset:0;background:var(--bg);z-index:200;display:flex;align-items:center;justify-content:center}
+.login-box{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:40px;width:100%;max-width:360px;text-align:center}
+.login-logo{font-family:'DM Mono',monospace;font-size:14px;color:var(--green);letter-spacing:0.15em;background:var(--green-dim);padding:6px 16px;border-radius:4px;display:inline-block;margin-bottom:24px}
+.login-title{font-size:18px;font-weight:500;margin-bottom:6px}
+.login-sub{font-size:12px;color:var(--text3);margin-bottom:28px}
+.login-inp{width:100%;font-size:14px;border:1px solid var(--border2);border-radius:8px;padding:12px 14px;background:var(--bg3);color:var(--text);font-family:'DM Sans',sans-serif;outline:none;text-align:center;letter-spacing:0.1em;margin-bottom:12px}
+.login-inp:focus{border-color:var(--green)}
+.login-btn{width:100%;font-size:14px;padding:12px;border-radius:8px;border:none;background:var(--green);color:#000;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;transition:opacity 0.15s}
+.login-btn:hover{opacity:0.85}
+.login-err{font-size:12px;color:var(--red);margin-top:10px;display:none}
+.loading-bar{height:2px;background:var(--bg3);position:fixed;top:0;left:0;right:0;z-index:300}
+.loading-bar-fill{height:100%;background:var(--green);width:0%;transition:width 0.3s}
+.header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg2);position:sticky;top:0;z-index:100}
+.header-left{display:flex;align-items:center;gap:12px}
+.logo{font-family:'DM Mono',monospace;font-size:12px;color:var(--green);letter-spacing:0.12em;background:var(--green-dim);padding:4px 10px;border-radius:4px}
+.main{padding:20px;max-width:900px;margin:0 auto}
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:16px}
+.panel-title{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;font-family:'DM Mono',monospace;margin-bottom:12px}
+.search-grid{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end}
+.field label{font-size:11px;color:var(--text3);display:block;margin-bottom:5px;font-family:'DM Mono',monospace}
+.field select{width:100%;font-size:13px;border:1px solid var(--border2);border-radius:6px;padding:8px 10px;background:var(--bg3);color:var(--text);font-family:'DM Sans',sans-serif;outline:none}
+.field select:focus{border-color:var(--green)}
+.btn-green{font-size:13px;padding:8px 20px;border-radius:6px;border:none;background:var(--green);color:#000;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer}
+.btn-green:hover{opacity:0.85}
+.btn-blue{font-size:13px;padding:8px 20px;border-radius:6px;border:none;background:var(--blue);color:#fff;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer}
+.btn-blue:hover{opacity:0.85}
+.btn-ghost{font-size:13px;padding:8px 16px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--text2);font-family:'DM Sans',sans-serif;cursor:pointer}
+.btn-ghost:hover{background:var(--bg3);color:var(--text)}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;font-size:10px;font-weight:500;color:var(--text3);padding:6px 8px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.06em}
+.tbl td{padding:8px 8px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--bg3)}
+.tbl tr.sel td{background:var(--green-dim)}
+.rollid{font-family:'DM Mono',monospace;font-size:12px;color:var(--green);background:var(--green-dim);padding:2px 8px;border-radius:4px}
+.badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500;font-family:'DM Mono',monospace}
+.bd{background:var(--green-dim);color:var(--green)}
+.ba{background:var(--amber-dim);color:var(--amber)}
+.empty{padding:24px;text-align:center;color:var(--text3);font-size:12px;font-family:'DM Mono',monospace}
+.spinner{display:inline-block;width:12px;height:12px;border:2px solid var(--border2);border-top-color:var(--green);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.stats3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.stat{background:var(--bg3);border-radius:8px;padding:12px 14px}
+.stat-label{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px}
+.stat-val{font-size:20px;font-weight:600}
+.lista-box{background:var(--bg3);border-radius:8px;padding:14px;font-family:'DM Mono',monospace;font-size:12px;color:var(--green);line-height:1.8;margin-bottom:14px;max-height:200px;overflow-y:auto;white-space:pre-wrap}
+@media(max-width:600px){.search-grid{grid-template-columns:1fr}.stats3{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<div class="loading-bar"><div class="loading-bar-fill" id="lbar"></div></div>
+
+<!-- LOGIN -->
+<div class="login-overlay" id="login-overlay">
+  <div class="login-box">
+    <div class="login-logo">GARMENT</div>
+    <div class="login-title">Acceso Bodega</div>
+    <div class="login-sub">Ingresa la clave para continuar</div>
+    <input class="login-inp" type="password" id="login-inp" placeholder="••••••••" onkeydown="if(event.key==='Enter')verificarClave()">
+    <button class="login-btn" onclick="verificarClave()">Entrar</button>
+    <div class="login-err" id="login-err">Clave incorrecta. Intenta de nuevo.</div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo">GARMENT</div>
+    <div style="font-size:13px;font-weight:500;color:var(--text2)">Panel de Bodega — Surtido de Pedidos</div>
+  </div>
+  <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace" id="last-update">—</div>
+</div>
+
+<div class="main">
+
+  <!-- BUSCADOR -->
+  <div class="panel">
+    <div class="panel-title">Buscar rollos disponibles</div>
+    <div class="search-grid">
+      <div class="field">
+        <label>Familia</label>
+        <select id="sel-familia" onchange="cargarSubfamilias()">
+          <option value="">— Selecciona familia —</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Subfamilia / Color</label>
+        <select id="sel-subfamilia">
+          <option value="">— Todos los colores —</option>
+        </select>
+      </div>
+      <button class="btn-green" onclick="buscarRollos()">Buscar →</button>
+    </div>
+  </div>
+
+  <!-- RESULTADOS -->
+  <div class="panel" id="panel-resultados" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+      <div>
+        <div style="font-size:13px;font-weight:500" id="res-titulo">Rollos disponibles</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:2px" id="res-info"></div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn-ghost" onclick="selTodos()">Todos</button>
+        <button class="btn-ghost" onclick="deselTodos()">Limpiar</button>
+      </div>
+    </div>
+    <table class="tbl">
+      <thead><tr>
+        <th style="width:36px;text-align:center">✓</th>
+        <th>RollID</th>
+        <th>Subfamilia</th>
+        <th style="text-align:right">Metros</th>
+        <th>Ubicación</th>
+        <th>Estado</th>
+      </tr></thead>
+      <tbody id="tbody-rollos"></tbody>
+    </table>
+    <div style="margin-top:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div style="font-size:12px;color:var(--text2)" id="sel-info">0 rollos · 0 metros</div>
+      <button class="btn-blue" onclick="generarLista()">Generar lista de surtido →</button>
+    </div>
+  </div>
+
+  <!-- RESUMEN FINAL -->
+  <div class="panel" id="panel-resumen" style="display:none">
+    <div class="panel-title">Lista de surtido generada</div>
+    <div class="stats3">
+      <div class="stat"><div class="stat-label">Rollos</div><div class="stat-val" style="color:var(--green)" id="sum-rollos">0</div></div>
+      <div class="stat"><div class="stat-label">Total metros</div><div class="stat-val" id="sum-metros">0</div></div>
+      <div class="stat"><div class="stat-label">Familia</div><div class="stat-val" style="font-size:13px;padding-top:4px" id="sum-familia">—</div></div>
+    </div>
+    <div class="lista-box" id="lista-box"></div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <button class="btn-green" onclick="copiar()">Copiar lista</button>
+      <button class="btn-ghost" onclick="resetear()">Nueva búsqueda</button>
+      <span style="font-size:12px;color:var(--green);display:none" id="copy-ok">✓ Copiado</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const URL_INV='https://docs.google.com/spreadsheets/d/1XpM4ZV8wkFxRVCQglJB8nWDmZIXOX8P033Jpckj6gSQ/export?format=csv';
+const CLAVE='Garment';
+let INV=[],rollos=[],sel=new Set();
+
+function setP(p){document.getElementById('lbar').style.width=p+'%';}
+
+function verificarClave(){
+  const v=document.getElementById('login-inp').value;
+  if(v===CLAVE){
+    document.getElementById('login-overlay').style.display='none';
+    cargarInv();
+  } else {
+    document.getElementById('login-err').style.display='block';
+    document.getElementById('login-inp').value='';
+  }
+}
+
+function parseCSV(text){
+  const lines=text.trim().split('\n');
+  const h=lines[0].split(',').map(x=>x.trim().replace(/^"|"$/g,''));
+  return lines.slice(1).map(line=>{
+    const v=[];let c='',q=false;
+    for(let i=0;i<line.length;i++){
+      if(line[i]==='"'){q=!q;continue;}
+      if(line[i]===','&&!q){v.push(c.trim());c='';continue;}
+      c+=line[i];
+    }
+    v.push(c.trim());
+    const o={};h.forEach((x,i)=>o[x]=v[i]||'');return o;
+  }).filter(r=>r[h[0]]);
+}
+
+async function cargarInv(){
+  setP(20);
+  try{
+    const r=await fetch(URL_INV+'&t='+Date.now());
+    setP(60);
+    INV=parseCSV(await r.text());
+    setP(90);
+    poblarFamilias();
+    document.getElementById('last-update').textContent='Inventario cargado '+new Date().toLocaleTimeString('es-MX');
+    setP(100);setTimeout(()=>setP(0),600);
+  }catch(e){
+    document.getElementById('last-update').textContent='Error al cargar';
+    setP(0);
+  }
+}
+
+function poblarFamilias(){
+  const fams=[...new Set(INV.filter(r=>r.Estado==='Disponible').map(r=>r.Familia))].sort();
+  const s=document.getElementById('sel-familia');
+  s.innerHTML='<option value="">— Selecciona familia —</option>'+fams.map(f=>`<option value="${f}">${f}</option>`).join('');
+}
+
+function cargarSubfamilias(){
+  const fam=document.getElementById('sel-familia').value;
+  const s=document.getElementById('sel-subfamilia');
+  if(!fam){s.innerHTML='<option value="">— Todos los colores —</option>';return;}
+  const subs=[...new Set(INV.filter(r=>r.Estado==='Disponible'&&r.Familia===fam).map(r=>r.Subfamilia))].sort();
+  s.innerHTML='<option value="">— Todos los colores —</option>'+subs.map(x=>`<option value="${x}">${x}</option>`).join('');
+}
+
+function buscarRollos(){
+  const fam=document.getElementById('sel-familia').value;
+  const sub=document.getElementById('sel-subfamilia').value;
+  if(!fam){alert('Selecciona una familia primero.');return;}
+  rollos=INV.filter(r=>r.Estado==='Disponible'&&r.Familia===fam&&(!sub||r.Subfamilia===sub))
+    .sort((a,b)=>parseFloat(a.Metros)-parseFloat(b.Metros));
+  sel=new Set();
+  renderRollos(fam,sub);
+  document.getElementById('panel-resumen').style.display='none';
+}
+
+function renderRollos(fam,sub){
+  document.getElementById('panel-resultados').style.display='block';
+  document.getElementById('res-titulo').textContent=fam+(sub?' — '+sub:'');
+  const tot=rollos.reduce((a,r)=>a+(parseFloat(r.Metros)||0),0);
+  document.getElementById('res-info').textContent=rollos.length+' rollos · '+tot.toLocaleString('es-MX',{minimumFractionDigits:1,maximumFractionDigits:1})+' metros totales';
+  const tbody=document.getElementById('tbody-rollos');
+  if(!rollos.length){tbody.innerHTML='<tr><td colspan="6" class="empty">Sin rollos disponibles</td></tr>';return;}
+  tbody.innerHTML=rollos.map((r,i)=>`<tr id="row-${i}" onclick="toggle(${i})" style="cursor:pointer">
+    <td style="text-align:center"><input type="checkbox" id="chk-${i}" onclick="event.stopPropagation();toggleChk(${i})" style="width:16px;height:16px;cursor:pointer;accent-color:var(--green)"></td>
+    <td><span class="rollid">${r.RollID}</span></td>
+    <td style="color:var(--text2)">${r.Subfamilia}</td>
+    <td style="text-align:right;font-family:'DM Mono',monospace;font-weight:500">${parseFloat(r.Metros).toLocaleString('es-MX',{minimumFractionDigits:1,maximumFractionDigits:1})}</td>
+    <td style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px">${r.Ubicacion||'—'}</td>
+    <td>${r.Estado==='Apartado'?'<span class="badge ba">Apartado</span>':'<span class="badge bd">Disponible</span>'}</td>
+  </tr>`).join('');
+  actualizarInfo();
+}
+
+function toggle(i){const c=document.getElementById('chk-'+i);c.checked=!c.checked;toggleChk(i);}
+function toggleChk(i){
+  const c=document.getElementById('chk-'+i);
+  const row=document.getElementById('row-'+i);
+  if(c.checked){sel.add(i);row.classList.add('sel');}
+  else{sel.delete(i);row.classList.remove('sel');}
+  actualizarInfo();
+}
+function selTodos(){rollos.forEach((_,i)=>{sel.add(i);document.getElementById('chk-'+i).checked=true;document.getElementById('row-'+i).classList.add('sel');});actualizarInfo();}
+function deselTodos(){rollos.forEach((_,i)=>{sel.delete(i);document.getElementById('chk-'+i).checked=false;document.getElementById('row-'+i).classList.remove('sel');});actualizarInfo();}
+function actualizarInfo(){
+  const n=sel.size;
+  const m=[...sel].reduce((a,i)=>a+(parseFloat(rollos[i].Metros)||0),0);
+  document.getElementById('sel-info').textContent=n+' rollo'+(n!==1?'s':'')+' seleccionado'+(n!==1?'s':'')+' · '+m.toLocaleString('es-MX',{minimumFractionDigits:1,maximumFractionDigits:1})+' metros';
+}
+
+function generarLista(){
+  if(!sel.size){alert('Selecciona al menos un rollo.');return;}
+  const rs=[...sel].map(i=>rollos[i]);
+  const tot=rs.reduce((a,r)=>a+(parseFloat(r.Metros)||0),0);
+  const fam=rs[0].Familia;
+  const detalle=rs.map(r=>`${r.RollID}  |  ${r.Subfamilia}  |  ${parseFloat(r.Metros).toLocaleString('es-MX',{minimumFractionDigits:1,maximumFractionDigits:1})} m`).join('\n');
+  const ids=rs.map(r=>r.RollID).join(', ');
+  document.getElementById('sum-rollos').textContent=rs.length;
+  document.getElementById('sum-metros').textContent=tot.toLocaleString('es-MX',{minimumFractionDigits:1,maximumFractionDigits:1})+' m';
+  document.getElementById('sum-familia').textContent=fam;
+  document.getElementById('lista-box').textContent=detalle+'\n\n— RollIDs para registrar salida —\n'+ids;
+  document.getElementById('panel-resumen').style.display='block';
+  document.getElementById('panel-resumen').scrollIntoView({behavior:'smooth'});
+}
+
+function copiar(){
+  navigator.clipboard.writeText(document.getElementById('lista-box').textContent).then(()=>{
+    const ok=document.getElementById('copy-ok');
+    ok.style.display='inline';
+    setTimeout(()=>ok.style.display='none',2500);
+  });
+}
+
+function resetear(){
+  sel=new Set();rollos=[];
+  document.getElementById('panel-resultados').style.display='none';
+  document.getElementById('panel-resumen').style.display='none';
+  document.getElementById('sel-familia').value='';
+  document.getElementById('sel-subfamilia').innerHTML='<option value="">— Todos los colores —</option>';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
