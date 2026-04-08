@@ -7,72 +7,91 @@
 <title>Garment — Bodega</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
-:root{
-  --bg:#f5f5f3;--bg2:#ffffff;--bg3:#f0efeb;--bg4:#e8e7e2;
-  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.15);
-  --text:#1a1a1a;--text2:#666;--text3:#999;
-  --green:#22c55e;--green-dim:rgba(34,197,94,0.13);
-  --amber:#f59e0b;--amber-dim:rgba(245,158,11,0.13);
-  --red:#ef4444;--red-dim:rgba(239,68,68,0.13);
-  --blue:#3b82f6;--blue-dim:rgba(59,130,246,0.13);
-}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
-.login-overlay{position:fixed;inset:0;background:var(--bg);z-index:200;display:flex;align-items:center;justify-content:center}
-.login-box{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:40px;width:100%;max-width:360px;text-align:center}
-.login-logo{font-family:'DM Mono',monospace;font-size:14px;color:var(--green);letter-spacing:0.15em;background:var(--green-dim);padding:6px 16px;border-radius:4px;display:inline-block;margin-bottom:24px}
-.login-title{font-size:18px;font-weight:500;margin-bottom:6px}
-.login-sub{font-size:12px;color:var(--text3);margin-bottom:28px}
-.login-inp{width:100%;font-size:14px;border:1px solid var(--border2);border-radius:8px;padding:12px 14px;background:var(--bg3);color:var(--text);font-family:'DM Sans',sans-serif;outline:none;text-align:center;letter-spacing:0.1em;margin-bottom:12px}
-.login-inp:focus{border-color:var(--green)}
-.login-btn{width:100%;font-size:14px;padding:12px;border-radius:8px;border:none;background:var(--green);color:#000;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer}
-.login-btn:hover{opacity:0.85}
-.login-err{font-size:12px;color:var(--red);margin-top:10px;display:none}
-.loading-bar{height:2px;background:var(--bg3);position:fixed;top:0;left:0;right:0;z-index:300}
-.loading-bar-fill{height:100%;background:var(--green);width:0%;transition:width 0.3s}
-.header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg2);position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:8px}
-.header-left{display:flex;align-items:center;gap:12px}
-.logo{font-family:'DM Mono',monospace;font-size:12px;color:var(--green);letter-spacing:0.12em;background:var(--green-dim);padding:4px 10px;border-radius:4px}
-.carrito-badge{background:var(--green);color:#000;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;font-family:'DM Mono',monospace;display:none}
-.main{padding:20px;max-width:960px;margin:0 auto}
-.panel{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:14px}
-.panel-title{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;font-family:'DM Mono',monospace;margin-bottom:12px}
+body{font-family:'DM Sans',sans-serif;background:#f7f7f7;color:#111;min-height:100vh;font-size:14px}
+
+/* LOGIN */
+.login-overlay{position:fixed;inset:0;background:#f7f7f7;z-index:200;display:flex;align-items:center;justify-content:center}
+.login-box{background:#fff;border:1px solid #e0e0e0;border-radius:14px;padding:44px 40px;width:100%;max-width:360px;text-align:center;box-shadow:0 2px 16px rgba(0,0,0,0.07)}
+.login-logo{font-family:'DM Mono',monospace;font-size:14px;color:#c00;letter-spacing:0.15em;background:#fff0f0;padding:6px 18px;border-radius:4px;display:inline-block;margin-bottom:24px;border:1px solid #ffd0d0}
+.login-title{font-size:18px;font-weight:600;color:#111;margin-bottom:6px}
+.login-sub{font-size:12px;color:#999;margin-bottom:28px}
+.login-inp{width:100%;font-size:15px;border:1.5px solid #ddd;border-radius:8px;padding:12px 14px;background:#fafafa;color:#111;font-family:'DM Sans',sans-serif;outline:none;text-align:center;letter-spacing:0.12em;margin-bottom:12px;transition:border-color 0.15s}
+.login-inp:focus{border-color:#c00}
+.login-btn{width:100%;font-size:14px;padding:13px;border-radius:8px;border:none;background:#c00;color:#fff;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;transition:background 0.15s}
+.login-btn:hover{background:#a00}
+.login-err{font-size:12px;color:#c00;margin-top:10px;display:none}
+
+/* LOADING */
+.loading-bar{height:3px;background:#ffe0e0;position:fixed;top:0;left:0;right:0;z-index:300}
+.loading-bar-fill{height:100%;background:#c00;width:0%;transition:width 0.3s}
+
+/* HEADER */
+.header{padding:14px 24px;border-bottom:2px solid #c00;display:flex;align-items:center;justify-content:space-between;background:#fff;position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:8px}
+.header-left{display:flex;align-items:center;gap:14px}
+.logo{font-family:'DM Mono',monospace;font-size:13px;color:#c00;letter-spacing:0.14em;font-weight:500}
+.header-sub{font-size:13px;color:#555;font-weight:400}
+.carrito-badge{background:#c00;color:#fff;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;font-family:'DM Mono',monospace;display:none}
+.last-upd{font-size:11px;color:#aaa;font-family:'DM Mono',monospace}
+
+/* LAYOUT */
+.main{padding:20px 24px;max-width:960px;margin:0 auto}
+
+/* PANEL */
+.panel{background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:20px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+.panel-title{font-size:10px;color:#aaa;text-transform:uppercase;letter-spacing:0.12em;font-family:'DM Mono',monospace;margin-bottom:14px;font-weight:500}
+
+/* BUSCADOR */
 .search-grid{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end}
-.field label{font-size:11px;color:var(--text3);display:block;margin-bottom:5px;font-family:'DM Mono',monospace}
-.field select{width:100%;font-size:13px;border:1px solid var(--border2);border-radius:6px;padding:8px 10px;background:var(--bg3);color:var(--text);font-family:'DM Sans',sans-serif;outline:none}
-.field select:focus{border-color:var(--green)}
-.btn-green{font-size:13px;padding:8px 20px;border-radius:6px;border:none;background:var(--green);color:#000;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer}
-.btn-green:hover{opacity:0.85}
-.btn-blue{font-size:13px;padding:8px 20px;border-radius:6px;border:none;background:var(--blue);color:#fff;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer}
-.btn-blue:hover{opacity:0.85}
-.btn-red{font-size:13px;padding:8px 16px;border-radius:6px;border:none;background:var(--red-dim);color:var(--red);font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer}
-.btn-red:hover{opacity:0.85}
-.btn-ghost{font-size:13px;padding:8px 16px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--text2);font-family:'DM Sans',sans-serif;cursor:pointer}
-.btn-ghost:hover{background:var(--bg3);color:var(--text)}
+.field label{font-size:11px;color:#888;display:block;margin-bottom:5px;font-family:'DM Mono',monospace}
+.field select{width:100%;font-size:13px;border:1.5px solid #ddd;border-radius:7px;padding:8px 10px;background:#fff;color:#111;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.15s}
+.field select:focus{border-color:#c00}
+
+/* BOTONES */
+.btn-red{font-size:13px;padding:9px 22px;border-radius:7px;border:none;background:#c00;color:#fff;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;transition:background 0.15s}
+.btn-red:hover{background:#a00}
+.btn-outline-red{font-size:13px;padding:8px 16px;border-radius:7px;border:1.5px solid #c00;background:#fff;color:#c00;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;transition:all 0.15s}
+.btn-outline-red:hover{background:#fff0f0}
+.btn-ghost{font-size:13px;padding:8px 14px;border-radius:7px;border:1.5px solid #ddd;background:#fff;color:#555;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all 0.15s}
+.btn-ghost:hover{border-color:#bbb;color:#111}
+
+/* TABLA */
 .tbl{width:100%;border-collapse:collapse;font-size:12px}
-.tbl th{text-align:left;font-size:10px;font-weight:500;color:var(--text3);padding:6px 8px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.06em}
-.tbl td{padding:7px 8px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+.tbl th{text-align:left;font-size:10px;font-weight:600;color:#aaa;padding:6px 8px;border-bottom:1.5px solid #e8e8e8;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.07em}
+.tbl td{padding:8px 8px;border-bottom:1px solid #f0f0f0;color:#111;vertical-align:middle}
 .tbl tr:last-child td{border-bottom:none}
-.tbl tr:hover td{background:var(--bg3)}
-.tbl tr.sel td{background:var(--green-dim)}
-.rollid{font-family:'DM Mono',monospace;font-size:11px;color:var(--green);background:var(--green-dim);padding:2px 7px;border-radius:4px}
-.badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500;font-family:'DM Mono',monospace}
-.bd{background:var(--green-dim);color:var(--green)}
-.ba{background:var(--amber-dim);color:var(--amber)}
-.empty{padding:20px;text-align:center;color:var(--text3);font-size:12px;font-family:'DM Mono',monospace}
-.spinner{display:inline-block;width:12px;height:12px;border:2px solid var(--border2);border-top-color:var(--green);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px}
-@keyframes spin{to{transform:rotate(360deg)}}
-.carrito-item{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--bg3);border-radius:6px;margin-bottom:6px;font-size:12px}
+.tbl tr:hover td{background:#fafafa}
+.tbl tr.sel td{background:#fff5f5}
+.rollid{font-family:'DM Mono',monospace;font-size:11px;color:#c00;background:#fff0f0;padding:2px 8px;border-radius:4px;border:1px solid #ffd0d0}
+
+/* BADGES */
+.badge-disp{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500;font-family:'DM Mono',monospace;background:#f0faf0;color:#2a7a2a;border:1px solid #c0e8c0}
+.badge-apart{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500;font-family:'DM Mono',monospace;background:#fff8e0;color:#7a6000;border:1px solid #f0d060}
+
+/* CARRITO */
+.carrito-item{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:#fafafa;border:1px solid #f0f0f0;border-radius:7px;margin-bottom:6px}
 .carrito-item-info{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.carrito-quitar{background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px}
-.carrito-quitar:hover{color:var(--red);background:var(--red-dim)}
-.lista-box{background:var(--bg3);border-radius:8px;padding:14px;font-family:'DM Mono',monospace;font-size:12px;color:var(--green);line-height:1.8;margin-bottom:14px;max-height:240px;overflow-y:auto;white-space:pre-wrap}
+.carrito-quitar{background:transparent;border:none;color:#ccc;cursor:pointer;font-size:15px;padding:2px 6px;border-radius:4px;transition:all 0.15s}
+.carrito-quitar:hover{color:#c00;background:#fff0f0}
+.sep{height:1px;background:#f0f0f0;margin:14px 0}
+
+/* LISTA FINAL */
+.lista-box{background:#fafafa;border:1.5px solid #e8e8e8;border-radius:8px;padding:14px;font-family:'DM Mono',monospace;font-size:12px;color:#c00;line-height:1.9;margin-bottom:14px;max-height:240px;overflow-y:auto;white-space:pre-wrap}
 .stats3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
-.stat{background:var(--bg3);border-radius:8px;padding:12px 14px}
-.stat-label{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;margin-bottom:5px}
-.stat-val{font-size:20px;font-weight:600}
-.sep{height:1px;background:var(--border);margin:14px 0}
-@media(max-width:600px){.search-grid{grid-template-columns:1fr}.stats3{grid-template-columns:1fr 1fr}}
+.stat{background:#fff0f0;border:1px solid #ffd0d0;border-radius:8px;padding:12px 14px}
+.stat-label{font-size:10px;color:#c00;font-family:'DM Mono',monospace;text-transform:uppercase;margin-bottom:5px;opacity:0.7}
+.stat-val{font-size:20px;font-weight:600;color:#c00}
+.stat-val-dark{font-size:14px;font-weight:600;color:#111;padding-top:3px}
+
+/* MISC */
+.empty{padding:20px;text-align:center;color:#bbb;font-size:12px;font-family:'DM Mono',monospace}
+.spinner{display:inline-block;width:12px;height:12px;border:2px solid #eee;border-top-color:#c00;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:620px){
+  .search-grid{grid-template-columns:1fr}
+  .stats3{grid-template-columns:1fr 1fr}
+}
 </style>
 </head>
 <body>
@@ -85,7 +104,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <div class="login-logo">GARMENT</div>
     <div class="login-title">Acceso Bodega</div>
     <div class="login-sub">Ingresa la clave para continuar</div>
-    <input class="login-inp" type="password" id="login-inp" placeholder="••••••••" onkeydown="if(event.key==='Enter')verificarClave()">
+    <input class="login-inp" type="password" id="login-inp" placeholder="••••••••"
+      onkeydown="if(event.key==='Enter')verificarClave()">
     <button class="login-btn" onclick="verificarClave()">Entrar</button>
     <div class="login-err" id="login-err">Clave incorrecta. Intenta de nuevo.</div>
   </div>
@@ -95,11 +115,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 <div class="header">
   <div class="header-left">
     <div class="logo">GARMENT</div>
-    <div style="font-size:13px;font-weight:500;color:var(--text2)">Panel de Bodega</div>
+    <div class="header-sub">Panel de Bodega — Surtido de Pedidos</div>
   </div>
   <div style="display:flex;align-items:center;gap:10px">
-    <span class="carrito-badge" id="carrito-badge">0 rollos en surtido</span>
-    <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace" id="last-update">—</div>
+    <span class="carrito-badge" id="carrito-badge"></span>
+    <span class="last-upd" id="last-update">—</span>
   </div>
 </div>
 
@@ -107,7 +127,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
   <!-- BUSCADOR -->
   <div class="panel">
-    <div class="panel-title">Buscar rollos</div>
+    <div class="panel-title">Buscar rollos disponibles</div>
     <div class="search-grid">
       <div class="field">
         <label>Familia</label>
@@ -121,21 +141,21 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
           <option value="">— Todos los colores —</option>
         </select>
       </div>
-      <button class="btn-green" onclick="buscarRollos()">Buscar →</button>
+      <button class="btn-red" onclick="buscarRollos()">Buscar →</button>
     </div>
   </div>
 
-  <!-- RESULTADOS DE BÚSQUEDA -->
+  <!-- RESULTADOS -->
   <div class="panel" id="panel-resultados" style="display:none">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
       <div>
-        <div style="font-size:13px;font-weight:500" id="res-titulo">Rollos disponibles</div>
-        <div style="font-size:11px;color:var(--text2);margin-top:2px" id="res-info"></div>
+        <div style="font-size:13px;font-weight:600;color:#111" id="res-titulo">Rollos disponibles</div>
+        <div style="font-size:11px;color:#888;margin-top:2px" id="res-info"></div>
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
         <button class="btn-ghost" onclick="selTodos()">Todos</button>
         <button class="btn-ghost" onclick="deselTodos()">Limpiar</button>
-        <button class="btn-blue" onclick="agregarAlSurtido()">+ Agregar al surtido</button>
+        <button class="btn-outline-red" onclick="agregarAlSurtido()">+ Agregar al surtido</button>
       </div>
     </div>
     <table class="tbl">
@@ -145,26 +165,27 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
         <th>Subfamilia</th>
         <th style="text-align:right">Metros</th>
         <th>Ubicación</th>
+        <th>Estado</th>
       </tr></thead>
       <tbody id="tbody-rollos"></tbody>
     </table>
-    <div style="margin-top:10px;font-size:12px;color:var(--text2)" id="sel-info">0 rollos seleccionados</div>
+    <div style="margin-top:10px;font-size:12px;color:#888" id="sel-info">0 rollos seleccionados</div>
   </div>
 
-  <!-- CARRITO DE SURTIDO -->
+  <!-- CARRITO -->
   <div class="panel" id="panel-carrito" style="display:none">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
       <div class="panel-title" style="margin-bottom:0">Surtido actual</div>
-      <div style="display:flex;gap:6px">
-        <button class="btn-red" onclick="limpiarCarrito()">Limpiar todo</button>
-        <button class="btn-green" onclick="generarLista()">Generar lista final →</button>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn-ghost" onclick="limpiarCarrito()">Limpiar todo</button>
+        <button class="btn-red" onclick="generarLista()">Generar lista final →</button>
       </div>
     </div>
     <div id="carrito-items"></div>
     <div class="sep"></div>
-    <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
-      <span style="color:var(--text2)">Total acumulado:</span>
-      <span style="font-family:'DM Mono',monospace;font-weight:600;color:var(--green)" id="carrito-total">0 rollos · 0.0 m</span>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:12px;color:#888">Total acumulado:</span>
+      <span style="font-family:'DM Mono',monospace;font-weight:600;color:#c00;font-size:13px" id="carrito-total">0 rollos · 0.0 m</span>
     </div>
   </div>
 
@@ -172,15 +193,24 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   <div class="panel" id="panel-resumen" style="display:none">
     <div class="panel-title">Lista de surtido generada</div>
     <div class="stats3">
-      <div class="stat"><div class="stat-label">Total rollos</div><div class="stat-val green" id="sum-rollos" style="color:var(--green)">0</div></div>
-      <div class="stat"><div class="stat-label">Total metros</div><div class="stat-val" id="sum-metros">0</div></div>
-      <div class="stat"><div class="stat-label">Familias</div><div class="stat-val" id="sum-fams">0</div></div>
+      <div class="stat">
+        <div class="stat-label">Total rollos</div>
+        <div class="stat-val" id="sum-rollos">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Total metros</div>
+        <div class="stat-val" id="sum-metros">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Familias</div>
+        <div class="stat-val" id="sum-fams">0</div>
+      </div>
     </div>
     <div class="lista-box" id="lista-box"></div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-      <button class="btn-green" onclick="copiar()">Copiar lista</button>
+      <button class="btn-red" onclick="copiar()">Copiar lista</button>
       <button class="btn-ghost" onclick="resetear()">Nuevo surtido</button>
-      <span style="font-size:12px;color:var(--green);display:none" id="copy-ok">✓ Copiado</span>
+      <span style="font-size:12px;color:#2a7a2a;display:none" id="copy-ok">✓ Copiado</span>
     </div>
   </div>
 
@@ -189,9 +219,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 <script>
 const URL_INV='https://docs.google.com/spreadsheets/d/1XpM4ZV8wkFxRVCQglJB8nWDmZIXOX8P033Jpckj6gSQ/export?format=csv';
 const CLAVE='Garment';
-let INV=[],rollosBusq=[],selBusq=new Set();
-// carrito: array de {rollID, familia, subfamilia, metros, ubicacion}
-let carrito=[];
+let INV=[],rollosBusq=[],selBusq=new Set(),carrito=[];
 
 function setP(p){document.getElementById('lbar').style.width=p+'%';}
 
@@ -228,10 +256,10 @@ async function cargarInv(){
     INV=parseCSV(await r.text());
     setP(95);
     poblarFamilias();
-    document.getElementById('last-update').textContent='Inventario cargado · '+new Date().toLocaleTimeString('es-MX');
+    document.getElementById('last-update').textContent='Actualizado '+new Date().toLocaleTimeString('es-MX');
     setP(100);setTimeout(()=>setP(0),600);
   }catch(e){
-    document.getElementById('last-update').textContent='Error al cargar inventario';
+    document.getElementById('last-update').textContent='Error al cargar';
     setP(0);
   }
 }
@@ -239,7 +267,8 @@ async function cargarInv(){
 function poblarFamilias(){
   const fams=[...new Set(INV.filter(r=>r.Estado==='Disponible').map(r=>r.Familia))].sort();
   const s=document.getElementById('sel-familia');
-  s.innerHTML='<option value="">— Selecciona familia —</option>'+fams.map(f=>`<option value="${f}">${f}</option>`).join('');
+  s.innerHTML='<option value="">— Selecciona familia —</option>'+
+    fams.map(f=>`<option value="${f}">${f}</option>`).join('');
 }
 
 function cargarSubfamilias(){
@@ -247,19 +276,18 @@ function cargarSubfamilias(){
   const s=document.getElementById('sel-subfamilia');
   if(!fam){s.innerHTML='<option value="">— Todos los colores —</option>';return;}
   const subs=[...new Set(INV.filter(r=>r.Estado==='Disponible'&&r.Familia===fam).map(r=>r.Subfamilia))].sort();
-  s.innerHTML='<option value="">— Todos los colores —</option>'+subs.map(x=>`<option value="${x}">${x}</option>`).join('');
+  s.innerHTML='<option value="">— Todos los colores —</option>'+
+    subs.map(x=>`<option value="${x}">${x}</option>`).join('');
 }
 
 function buscarRollos(){
   const fam=document.getElementById('sel-familia').value;
   const sub=document.getElementById('sel-subfamilia').value;
   if(!fam){alert('Selecciona una familia primero.');return;}
-  // Excluir los que ya están en el carrito
   const enCarrito=new Set(carrito.map(c=>c.rollID));
   rollosBusq=INV.filter(r=>
-    r.Estado==='Disponible' &&
-    r.Familia===fam &&
-    (!sub||r.Subfamilia===sub) &&
+    r.Estado==='Disponible'&&r.Familia===fam&&
+    (!sub||r.Subfamilia===sub)&&
     !enCarrito.has(r.RollID)
   ).sort((a,b)=>parseFloat(a.Metros)-parseFloat(b.Metros));
   selBusq=new Set();
@@ -272,25 +300,27 @@ function renderRollos(fam,sub){
   document.getElementById('res-titulo').textContent=fam+(sub?' — '+sub:'');
   const tot=rollosBusq.reduce((a,r)=>a+(parseFloat(r.Metros)||0),0);
   document.getElementById('res-info').textContent=
-    rollosBusq.length+' rollos disponibles · '+
-    tot.toLocaleString('es-MX',{minimumFractionDigits:1,maximumFractionDigits:1})+' metros';
+    rollosBusq.length+' rollos · '+
+    tot.toLocaleString('es-MX',{minimumFractionDigits:1,maximumFractionDigits:1})+' metros totales';
   const tbody=document.getElementById('tbody-rollos');
   if(!rollosBusq.length){
-    tbody.innerHTML='<tr><td colspan="5" class="empty">Sin rollos disponibles para esta búsqueda</td></tr>';
+    tbody.innerHTML='<tr><td colspan="6" class="empty">Sin rollos disponibles para esta búsqueda</td></tr>';
     return;
   }
   tbody.innerHTML=rollosBusq.map((r,i)=>`
     <tr id="row-${i}" onclick="toggle(${i})" style="cursor:pointer">
       <td style="text-align:center">
-        <input type="checkbox" id="chk-${i}" onclick="event.stopPropagation();toggleChk(${i})"
-          style="width:16px;height:16px;cursor:pointer;accent-color:var(--green)">
+        <input type="checkbox" id="chk-${i}"
+          onclick="event.stopPropagation();toggleChk(${i})"
+          style="width:16px;height:16px;cursor:pointer;accent-color:#c00">
       </td>
       <td><span class="rollid">${r.RollID}</span></td>
-      <td style="color:var(--text2)">${r.Subfamilia}</td>
-      <td style="text-align:right;font-family:'DM Mono',monospace;font-weight:500">
+      <td style="color:#555">${r.Subfamilia}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-weight:600;color:#111">
         ${parseFloat(r.Metros).toLocaleString('es-MX',{minimumFractionDigits:1,maximumFractionDigits:1})}
       </td>
-      <td style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px">${r.Ubicacion||'—'}</td>
+      <td style="color:#aaa;font-family:'DM Mono',monospace;font-size:11px">${r.Ubicacion||'—'}</td>
+      <td>${r.Estado==='Apartado'?'<span class="badge-apart">Apartado</span>':'<span class="badge-disp">Disponible</span>'}</td>
     </tr>`).join('');
   actualizarInfoBusq();
 }
@@ -318,21 +348,13 @@ function agregarAlSurtido(){
   if(!selBusq.size){alert('Selecciona al menos un rollo.');return;}
   [...selBusq].forEach(i=>{
     const r=rollosBusq[i];
-    carrito.push({
-      rollID:r.RollID,
-      familia:r.Familia,
-      subfamilia:r.Subfamilia,
-      metros:parseFloat(r.Metros)||0,
-      ubicacion:r.Ubicacion||'—'
-    });
+    carrito.push({rollID:r.RollID,familia:r.Familia,subfamilia:r.Subfamilia,metros:parseFloat(r.Metros)||0,ubicacion:r.Ubicacion||'—'});
   });
   selBusq=new Set();
   renderCarrito();
-  // Limpiar búsqueda actual para que muestre los restantes
   const fam=document.getElementById('sel-familia').value;
   const sub=document.getElementById('sel-subfamilia').value;
   buscarRollos();
-  // Restaurar selects
   document.getElementById('sel-familia').value=fam;
   document.getElementById('sel-subfamilia').value=sub;
 }
@@ -351,26 +373,25 @@ function renderCarrito(){
     <div class="carrito-item">
       <div class="carrito-item-info">
         <span class="rollid">${c.rollID}</span>
-        <span style="color:var(--text2);font-size:11px">${c.familia}</span>
-        <span style="color:var(--text3);font-size:11px">${c.subfamilia}</span>
-        <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--green)">
+        <span style="color:#555;font-size:12px">${c.familia}</span>
+        <span style="color:#aaa;font-size:11px">${c.subfamilia}</span>
+        <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:#c00">
           ${c.metros.toLocaleString('es-MX',{minimumFractionDigits:1,maximumFractionDigits:1})} m
         </span>
+        <span style="font-family:'DM Mono',monospace;font-size:11px;color:#bbb">${c.ubicacion}</span>
       </div>
       <button class="carrito-quitar" onclick="quitarDelCarrito(${i})" title="Quitar">✕</button>
     </div>`).join('');
 }
 
 function quitarDelCarrito(i){
-  carrito.splice(i,1);
-  renderCarrito();
-  // Refrescar búsqueda actual si hay una activa
+  carrito.splice(i,1);renderCarrito();
   const fam=document.getElementById('sel-familia').value;
   if(fam)buscarRollos();
 }
 
 function limpiarCarrito(){
-  if(!confirm('¿Limpiar todo el surtido?'))return;
+  if(!confirm('¿Limpiar todo el surtido actual?'))return;
   carrito=[];renderCarrito();
   document.getElementById('panel-resumen').style.display='none';
 }
@@ -383,12 +404,11 @@ function generarLista(){
   document.getElementById('sum-metros').textContent=tot.toLocaleString('es-MX',{minimumFractionDigits:1,maximumFractionDigits:1})+' m';
   document.getElementById('sum-fams').textContent=fams.length;
   const detalle=carrito.map(c=>
-    `${c.rollID.padEnd(8)}  |  ${c.familia.padEnd(20)}  |  ${c.subfamilia.padEnd(15)}  |  ${c.metros.toLocaleString('es-MX',{minimumFractionDigits:1,maximumFractionDigits:1})} m`
+    `${c.rollID.padEnd(8)}  |  ${c.familia.padEnd(22)}  |  ${c.subfamilia.padEnd(14)}  |  ${c.metros.toLocaleString('es-MX',{minimumFractionDigits:1,maximumFractionDigits:1})} m`
   ).join('\n');
   const ids=carrito.map(c=>c.rollID).join(', ');
   document.getElementById('lista-box').textContent=
-    '=== LISTA DE SURTIDO ===\n'+
-    new Date().toLocaleString('es-MX')+'\n\n'+
+    '=== LISTA DE SURTIDO ===\n'+new Date().toLocaleString('es-MX')+'\n\n'+
     detalle+'\n\n'+
     '--- Total: '+carrito.length+' rollos · '+tot.toLocaleString('es-MX',{minimumFractionDigits:1,maximumFractionDigits:1})+' m ---\n\n'+
     '=== RollIDs para registrar salida ===\n'+ids;
@@ -404,7 +424,7 @@ function copiar(){
 }
 
 function resetear(){
-  if(carrito.length&&!confirm('¿Empezar un surtido nuevo? Se limpiará el surtido actual.'))return;
+  if(carrito.length&&!confirm('¿Empezar surtido nuevo? Se limpiará el actual.'))return;
   carrito=[];selBusq=new Set();rollosBusq=[];
   renderCarrito();
   document.getElementById('panel-resultados').style.display='none';
