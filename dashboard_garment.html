@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Garment Dashboard</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
+:root {
+  --bg:#0f0f0f;--bg2:#161616;--bg3:#1e1e1e;--bg4:#252525;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#f0f0f0;--text2:#888;--text3:#484848;
+  --green:#22c55e;--green-dim:rgba(34,197,94,0.13);
+  --amber:#f59e0b;--amber-dim:rgba(245,158,11,0.13);
+  --red:#ef4444;--red-dim:rgba(239,68,68,0.13);
+  --blue:#3b82f6;--blue-dim:rgba(59,130,246,0.13);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:13px}
+.loading-bar{height:2px;background:var(--bg3);position:fixed;top:0;left:0;right:0;z-index:300}
+.loading-bar-fill{height:100%;background:var(--green);width:0%;transition:width 0.4s}
+.header{padding:16px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg2);position:sticky;top:0;z-index:100}
+.header-left{display:flex;align-items:center;gap:16px}
+.logo{font-family:'DM Mono',monospace;font-size:12px;color:var(--green);letter-spacing:0.12em;background:var(--green-dim);padding:4px 10px;border-radius:4px}
+.header-title{font-size:14px;font-weight:500}
+.header-right{display:flex;align-items:center;gap:12px}
+.last-update{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace}
+.refresh-btn{font-size:12px;padding:6px 14px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+.refresh-btn:hover{background:var(--bg3);color:var(--text)}
+.refresh-btn:disabled{opacity:0.4;cursor:default}
+.main{padding:20px 28px;max-width:1400px;margin:0 auto}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:18px}
+.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px 18px;transition:border-color 0.2s}
+.kpi:hover{border-color:var(--border2)}
+.kpi-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;font-family:'DM Mono',monospace}
+.kpi-val{font-size:26px;font-weight:600;line-height:1;margin-bottom:4px}
+.kpi-sub{font-size:11px;color:var(--text3)}
+.green{color:var(--green)}.amber{color:var(--amber)}.blue{color:var(--blue)}.red{color:var(--red)}
+.section{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:14px}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.section-title{font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;font-family:'DM Mono',monospace}
+.tabs-nav{display:flex;gap:2px;background:var(--bg3);border-radius:7px;padding:3px;width:fit-content}
+.tab-btn{font-size:12px;padding:5px 14px;border-radius:5px;border:none;background:transparent;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;transition:all 0.15s}
+.tab-btn.active{background:var(--bg4);color:var(--text)}
+.tc{display:none}.tc.active{display:block}
+.mes-btns{display:flex;gap:5px;flex-wrap:wrap}
+.mes-btn{font-size:11px;padding:5px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace;transition:all 0.15s}
+.mes-btn.active{background:var(--green-dim);border-color:var(--green);color:var(--green)}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{text-align:left;font-size:10px;font-weight:500;color:var(--text3);padding:6px 8px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.06em}
+.tbl td{padding:7px 8px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--bg3)}
+.badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500;font-family:'DM Mono',monospace}
+.bd{background:var(--green-dim);color:var(--green)}
+.ba{background:var(--amber-dim);color:var(--amber)}
+.br{background:var(--red-dim);color:var(--red)}
+.bg{background:var(--bg3);color:var(--text3)}
+.sem{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.s-green{background:var(--green)}.s-amber{background:var(--amber)}.s-red{background:var(--red)}.s-gray{background:var(--text3)}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.bar-label{font-size:11px;width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;color:var(--text)}
+.bar-track{flex:1;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;background:var(--green)}
+.bar-num{font-size:11px;color:var(--text2);width:80px;text-align:right;flex-shrink:0;font-family:'DM Mono',monospace}
+.search-inp{font-size:12px;border:1px solid var(--border);border-radius:6px;padding:6px 10px;background:var(--bg3);color:var(--text);font-family:'DM Sans',sans-serif;width:260px;outline:none;transition:border-color 0.15s}
+.search-inp:focus{border-color:var(--border2)}
+.pager{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:11px;color:var(--text3)}
+.pager button{font-size:11px;padding:4px 10px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif}
+.pager button:disabled{opacity:0.3;cursor:default}
+.expand-btn{font-size:11px;padding:2px 6px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;font-family:'DM Mono',monospace}
+.expand-btn:hover{color:var(--text)}
+.sub-row{display:none}
+.empty{padding:32px;text-align:center;color:var(--text3);font-size:12px;font-family:'DM Mono',monospace}
+.legend{display:flex;gap:16px;font-size:11px;color:var(--text3);flex-wrap:wrap;margin-bottom:12px}
+.legend-item{display:flex;align-items:center;gap:5px}
+.err{padding:20px;text-align:center;color:var(--red);font-family:'DM Mono',monospace;font-size:12px}
+.spinner{display:inline-block;width:12px;height:12px;border:2px solid var(--border2);border-top-color:var(--green);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.mes-stats{display:flex;gap:10px;font-size:11px;color:var(--text2);font-family:'DM Mono',monospace;align-items:center}
+@media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="loading-bar"><div class="loading-bar-fill" id="lbar"></div></div>
+
+<div class="header">
+  <div class="header-left">
+    <div class="logo">GARMENT</div>
+    <div class="header-title">Dashboard de Inventario</div>
+  </div>
+  <div class="header-right">
+    <div class="last-update" id="last-update">—</div>
+    <button class="refresh-btn" id="refresh-btn" onclick="cargarDatos()">↻ Actualizar</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="kpis" id="kpis">
+    <div class="kpi"><div class="kpi-label">Rollos disponibles</div><div class="kpi-val green">—</div><div class="kpi-sub"><span class="spinner"></span>cargando</div></div>
+    <div class="kpi"><div class="kpi-label">Rollos apartados</div><div class="kpi-val amber">—</div><div class="kpi-sub">&nbsp;</div></div>
+    <div class="kpi"><div class="kpi-label">Familias activas</div><div class="kpi-val">—</div><div class="kpi-sub">&nbsp;</div></div>
+    <div class="kpi"><div class="kpi-label">Vendido (5 meses)</div><div class="kpi-val blue">—</div><div class="kpi-sub">&nbsp;</div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="tabs-nav">
+        <button class="tab-btn active" onclick="showTab('tendencias',this)">Tendencias y resurtido</button>
+        <button class="tab-btn" onclick="showTab('mes',this)">Por mes</button>
+        <button class="tab-btn" onclick="showTab('subfamilias',this)">Subfamilias</button>
+        <button class="tab-btn" onclick="showTab('apartados',this)">Apartados</button>
+      </div>
+    </div>
+
+    <!-- TENDENCIAS -->
+    <div id="tendencias" class="tc active">
+      <div class="legend">
+        <span class="legend-item"><span class="sem s-red"></span>Resurtir urgente (&lt;2 meses)</span>
+        <span class="legend-item"><span class="sem s-amber"></span>Revisar (2–6 meses)</span>
+        <span class="legend-item"><span class="sem s-green"></span>Stock OK (&gt;6 meses)</span>
+        <span class="legend-item"><span class="sem s-gray"></span>Sin movimiento</span>
+        <span style="color:var(--text3)">· Clic en ▸ para subfamilias</span>
+      </div>
+      <table class="tbl">
+        <thead><tr>
+          <th style="width:28px"></th>
+          <th>Familia</th>
+          <th style="text-align:right">Stock disp.</th>
+          <th style="text-align:right">Prom/mes</th>
+          <th style="text-align:center">Meses stock</th>
+          <th style="text-align:center">Acción</th>
+        </tr></thead>
+        <tbody id="tbody-tend"><tr><td colspan="6" class="empty"><span class="spinner"></span>Cargando datos reales...</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- POR MES -->
+    <div id="mes" class="tc">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <div class="mes-btns" id="mes-btns"></div>
+        <div class="mes-stats" id="mes-stats"></div>
+      </div>
+      <div class="grid2">
+        <div>
+          <div class="section-title" style="margin-bottom:10px" id="barras-title">Top familias del mes</div>
+          <div id="barras-container"><div class="empty"><span class="spinner"></span></div></div>
+        </div>
+        <div>
+          <div class="section-title" style="margin-bottom:10px">Subfamilias del mes</div>
+          <table class="tbl">
+            <thead><tr><th>#</th><th>Familia</th><th>Subfamilia</th><th style="text-align:right">Metros</th></tr></thead>
+            <tbody id="tbody-mes-sub"></tbody>
+          </table>
+          <div class="pager">
+            <button id="msub-prev" onclick="cambiarMesSub(-1)" disabled>← Ant</button>
+            <span id="msub-info"></span>
+            <button id="msub-next" onclick="cambiarMesSub(1)">Sig →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUBFAMILIAS -->
+    <div id="subfamilias" class="tc">
+      <div style="margin-bottom:12px">
+        <input class="search-inp" type="text" id="search-sub" placeholder="Buscar familia o subfamilia..." oninput="filtrarSub()">
+      </div>
+      <table class="tbl">
+        <thead><tr>
+          <th>Familia</th><th>Subfamilia</th>
+          <th style="text-align:right">Stock actual</th>
+          <th style="text-align:right">Vendido 5m</th>
+          <th style="text-align:center">Estado</th>
+        </tr></thead>
+        <tbody id="tbody-sub"><tr><td colspan="5" class="empty"><span class="spinner"></span>Cargando...</td></tr></tbody>
+      </table>
+      <div class="pager">
+        <button id="sub-prev" onclick="cambiarSub(-1)" disabled>← Ant</button>
+        <span id="sub-info"></span>
+        <button id="sub-next" onclick="cambiarSub(1)">Sig →</button>
+      </div>
+    </div>
+
+    <!-- APARTADOS -->
+    <div id="apartados" class="tc">
+      <table class="tbl">
+        <thead><tr>
+          <th>Cliente</th><th>Familia</th><th>Subfamilia</th>
+          <th style="text-align:right">Metros</th><th>Fecha</th>
+        </tr></thead>
+        <tbody id="tbody-apart"><tr><td colspan="5" class="empty"><span class="spinner"></span>Cargando...</td></tr></tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const URL_INV='https://docs.google.com/spreadsheets/d/1XpM4ZV8wkFxRVCQglJB8nWDmZIXOX8P033Jpckj6gSQ/export?format=csv';
+const URL_MOV='https://docs.google.com/spreadsheets/d/1uDW-4tfwlst9Fo0mw27TRZiFqfMeD8er-wy12OD7RdM/export?format=csv';
+const MESES5=['2025-11','2025-12','2026-01','2026-02','2026-03'];
+const MESES3=['2026-01','2026-02','2026-03'];
+
+// Convierte cualquier formato de fecha a YYYY-MM
+function parseMes(fecha){
+  if(!fecha)return'';
+  // Formato DD/MM/YY o DD/MM/YYYY
+  const m1=fecha.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+  if(m1){
+    const dia=m1[1].padStart(2,'0');
+    const mes=m1[2].padStart(2,'0');
+    let anio=m1[3];
+    if(anio.length===2)anio=(parseInt(anio)<50?'20':'19')+anio;
+    return anio+'-'+mes;
+  }
+  // Formato YYYY-MM-DD
+  const m2=fecha.match(/^(\d{4})-(\d{2})/);
+  if(m2)return m2[1]+'-'+m2[2];
+  // Formato MM/DD/YYYY
+  const m3=fecha.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if(m3)return m3[3]+'-'+m3[1].padStart(2,'0');
+  return fecha.substring(0,7);
+}
+const MES_LABEL={'2025-09':'Sep 25','2025-10':'Oct 25','2025-11':'Nov 25','2025-12':'Dic 25','2026-01':'Ene 26','2026-02':'Feb 26','2026-03':'Mar 26','2026-04':'Abr 26*'};
+const POR_PAG=20;
+let INV=[],MOV=[],mesDatos={},mesActual='';
+let subFilt=[],subPag=0,mesSubs=[],mesPag=0;
+
+function parseCSV(text){
+  const lines=text.trim().split('\n');
+  const headers=lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,''));
+  return lines.slice(1).map(line=>{
+    const vals=[];let cur='',inQ=false;
+    for(let i=0;i<line.length;i++){
+      if(line[i]==='"'){inQ=!inQ;continue;}
+      if(line[i]===','&&!inQ){vals.push(cur.trim());cur='';continue;}
+      cur+=line[i];
+    }
+    vals.push(cur.trim());
+    const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||'');
+    return obj;
+  }).filter(r=>r[headers[0]]);
+}
+
+function setProgress(p){document.getElementById('lbar').style.width=p+'%';}
+
+async function cargarDatos(){
+  const btn=document.getElementById('refresh-btn');
+  btn.disabled=true;btn.textContent='↻ Cargando...';
+  setProgress(15);
+  try{
+    const [rI,rM]=await Promise.all([
+      fetch(URL_INV+'&t='+Date.now()),
+      fetch(URL_MOV+'&t='+Date.now())
+    ]);
+    setProgress(55);
+    const [tI,tM]=await Promise.all([rI.text(),rM.text()]);
+    setProgress(75);
+    INV=parseCSV(tI);MOV=parseCSV(tM);
+    setProgress(88);
+    procesarTodo();
+    setProgress(100);
+    document.getElementById('last-update').textContent='Actualizado '+new Date().toLocaleTimeString('es-MX');
+    setTimeout(()=>setProgress(0),800);
+  }catch(e){
+    document.getElementById('tbody-tend').innerHTML=`<tr><td colspan="6" class="err">Error al cargar. Verifica tu conexión e intenta de nuevo.</td></tr>`;
+    setProgress(0);
+  }
+  btn.disabled=false;btn.textContent='↻ Actualizar';
+}
+
+function procesarTodo(){
+  renderKPIs();
+  procesarMovimientos();
+  renderTendencias();
+  renderMesBtns();
+  renderApartados();
+  filtrarSub();
+}
+
+function renderKPIs(){
+  const disp=INV.filter(r=>r.Estado==='Disponible');
+  const apart=INV.filter(r=>r.Estado==='Apartado');
+  const mDisp=disp.reduce((a,r)=>a+(parseFloat(r.Metros)||0),0);
+  const mApart=apart.reduce((a,r)=>a+(parseFloat(r.Metros)||0),0);
+  const fams=new Set(disp.map(r=>r.Familia)).size;
+  const vendido=MOV.filter(r=>r.Tipo==='SALIDA'&&MESES5.includes(parseMes(r.Fecha)))
+    .reduce((a,r)=>a+(parseFloat(r.Metros)||0),0);
+  document.getElementById('kpis').innerHTML=`
+    <div class="kpi"><div class="kpi-label">Rollos disponibles</div><div class="kpi-val green">${disp.length.toLocaleString()}</div><div class="kpi-sub">${Math.round(mDisp).toLocaleString()} metros</div></div>
+    <div class="kpi"><div class="kpi-label">Rollos apartados</div><div class="kpi-val amber">${apart.length.toLocaleString()}</div><div class="kpi-sub">${Math.round(mApart).toLocaleString()} metros</div></div>
+    <div class="kpi"><div class="kpi-label">Familias activas</div><div class="kpi-val">${fams}</div><div class="kpi-sub">${INV.length.toLocaleString()} rollos total</div></div>
+    <div class="kpi"><div class="kpi-label">Vendido (5 meses)</div><div class="kpi-val blue">${Math.round(vendido).toLocaleString()}</div><div class="kpi-sub">metros Nov'25–Mar'26</div></div>`;
+}
+
+function renderTendencias(){
+  const vFam={},vFamMes={};
+  MOV.filter(r=>r.Tipo==='SALIDA').forEach(r=>{
+    const mes=parseMes(r.Fecha),fam=r.Familia,mts=parseFloat(r.Metros)||0;
+    if(MESES5.includes(mes)){if(!vFam[fam])vFam[fam]=0;vFam[fam]+=mts;}
+    if(!vFamMes[fam])vFamMes[fam]={};
+    if(!vFamMes[fam][mes])vFamMes[fam][mes]=0;
+    vFamMes[fam][mes]+=mts;
+  });
+  const stockFam={},subsFam={};
+  INV.filter(r=>r.Estado==='Disponible').forEach(r=>{
+    const fam=r.Familia,mts=parseFloat(r.Metros)||0;
+    if(!stockFam[fam])stockFam[fam]=0;stockFam[fam]+=mts;
+    if(!subsFam[fam])subsFam[fam]={};
+    if(!subsFam[fam][r.Subfamilia])subsFam[fam][r.Subfamilia]=0;
+    subsFam[fam][r.Subfamilia]+=mts;
+  });
+  const vSub={};
+  MOV.filter(r=>r.Tipo==='SALIDA'&&MESES5.includes(parseMes(r.Fecha))).forEach(r=>{
+    const k=r.Familia+'|||'+r.Subfamilia;
+    if(!vSub[k])vSub[k]=0;vSub[k]+=parseFloat(r.Metros)||0;
+  });
+  const top20=Object.entries(vFam).sort((a,b)=>b[1]-a[1]).slice(0,20).map(([f])=>f);
+  const tbody=document.getElementById('tbody-tend');tbody.innerHTML='';
+  top20.forEach((fam,idx)=>{
+    const stock=Math.round(stockFam[fam]||0);
+    const prom=MESES3.reduce((a,m)=>a+(vFamMes[fam]?.[m]||0),0)/3;
+    const ms=prom>0?stock/prom:(stock>0?99:0);
+    const msLabel=stock===0?'—':ms>=99?'>50':ms.toFixed(1);
+    let sem,accion;
+    if(stock===0){sem='s-gray';accion='<span class="badge br">Sin stock</span>';}
+    else if(ms<2){sem='s-red';accion='<span class="badge br">Resurtir ya</span>';}
+    else if(ms<6){sem='s-amber';accion='<span class="badge ba">Revisar</span>';}
+    else{sem='s-green';accion='<span class="badge bd">OK</span>';}
+    const subsArr=Object.entries(subsFam[fam]||{}).map(([s,st])=>({
+      sub:s,stock:Math.round(st),vendido:Math.round(vSub[fam+'|||'+s]||0)
+    })).sort((a,b)=>b.vendido-a.vendido).slice(0,8);
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><button class="expand-btn" onclick="toggleSub(${idx},this)">▸</button></td>
+      <td style="font-weight:500">${fam}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace">${stock.toLocaleString()}</td>
+      <td style="text-align:right;color:var(--text2);font-family:'DM Mono',monospace">${Math.round(prom).toLocaleString()}</td>
+      <td style="text-align:center"><span class="sem ${sem}"></span>${msLabel}</td>
+      <td style="text-align:center">${accion}</td>`;
+    tbody.appendChild(tr);
+    const subTr=document.createElement('tr');
+    subTr.className='sub-row';subTr.id='st-'+idx;
+    subTr.innerHTML=`<td colspan="6" style="padding:0"><table style="width:100%;border-collapse:collapse;background:var(--bg3)">
+      <tr><th style="font-size:10px;color:var(--text3);padding:5px 8px 5px 28px;font-family:'DM Mono',monospace;border-bottom:1px solid var(--border);text-align:left">Subfamilia</th>
+      <th style="font-size:10px;color:var(--text3);padding:5px 8px;font-family:'DM Mono',monospace;border-bottom:1px solid var(--border);text-align:right">Vendido 5m</th>
+      <th style="font-size:10px;color:var(--text3);padding:5px 8px;font-family:'DM Mono',monospace;border-bottom:1px solid var(--border);text-align:right">Stock</th>
+      <th style="font-size:10px;color:var(--text3);padding:5px 8px;font-family:'DM Mono',monospace;border-bottom:1px solid var(--border);text-align:center">Estado</th></tr>
+      ${subsArr.map(s=>{
+        const e=s.stock===0?'<span class="badge br">Sin stock</span>':s.vendido>s.stock?'<span class="badge ba">Stock bajo</span>':'<span class="badge bd">OK</span>';
+        return `<tr><td style="padding:5px 8px 5px 28px;font-size:11px;color:var(--text2)">${s.sub}</td>
+          <td style="padding:5px 8px;font-size:11px;text-align:right;font-family:'DM Mono',monospace">${s.vendido.toLocaleString()}</td>
+          <td style="padding:5px 8px;font-size:11px;text-align:right;font-family:'DM Mono',monospace">${s.stock.toLocaleString()}</td>
+          <td style="padding:5px 8px;text-align:center">${e}</td></tr>`;
+      }).join('')}
+    </table></td>`;
+    tbody.appendChild(subTr);
+  });
+}
+
+function toggleSub(idx,btn){
+  const el=document.getElementById('st-'+idx);
+  const v=el.style.display==='table-row';
+  el.style.display=v?'none':'table-row';btn.textContent=v?'▸':'▾';
+}
+
+function procesarMovimientos(){
+  mesDatos={};
+  MOV.filter(r=>r.Tipo==='SALIDA').forEach(r=>{
+    const mes=parseMes(r.Fecha);if(!mes)return;
+    if(!mesDatos[mes])mesDatos[mes]={fams:{},subs:{},clientes:new Set(),total:0};
+    const mts=parseFloat(r.Metros)||0,fam=r.Familia,sub=r.Subfamilia,cli=r.Cliente;
+    if(!mesDatos[mes].fams[fam])mesDatos[mes].fams[fam]={metros:0,tx:0,clientes:new Set()};
+    mesDatos[mes].fams[fam].metros+=mts;mesDatos[mes].fams[fam].tx++;mesDatos[mes].fams[fam].clientes.add(cli);
+    const k=fam+'|||'+sub;
+    if(!mesDatos[mes].subs[k])mesDatos[mes].subs[k]={fam,sub,metros:0};
+    mesDatos[mes].subs[k].metros+=mts;
+    mesDatos[mes].clientes.add(cli);mesDatos[mes].total+=mts;
+  });
+  const meses=Object.keys(mesDatos).sort();
+  if(meses.length>0)mesActual=meses[meses.length-1];
+}
+
+function renderMesBtns(){
+  const meses=Object.keys(mesDatos).sort();
+  document.getElementById('mes-btns').innerHTML=meses.map(m=>
+    `<button class="mes-btn${m===mesActual?' active':''}" onclick="cambiarMes('${m}')">${MES_LABEL[m]||m}</button>`
+  ).join('');
+  renderMesContenido();
+}
+
+function cambiarMes(m){
+  mesActual=m;mesPag=0;
+  document.querySelectorAll('.mes-btn').forEach(b=>b.classList.toggle('active',b.textContent===(MES_LABEL[m]||m)));
+  renderMesContenido();
+}
+
+function renderMesContenido(){
+  const d=mesDatos[mesActual];if(!d)return;
+  const famsArr=Object.entries(d.fams).sort((a,b)=>b[1].metros-a[1].metros);
+  const max=famsArr.length>0?famsArr[0][1].metros:1;
+  document.getElementById('barras-title').textContent=`Top familias — ${MES_LABEL[mesActual]||mesActual}`;
+  document.getElementById('barras-container').innerHTML=famsArr.slice(0,15).map(([fam,fd])=>{
+    const pct=(fd.metros/max*100).toFixed(1);
+    return `<div class="bar-row"><div class="bar-label" title="${fam}">${fam}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+      <div class="bar-num">${Math.round(fd.metros).toLocaleString()} m</div></div>`;
+  }).join('')||'<div class="empty">Sin movimientos</div>';
+  document.getElementById('mes-stats').innerHTML=`<span>${Math.round(d.total).toLocaleString()} m</span><span>·</span><span>${Object.keys(d.fams).length} familias</span><span>·</span><span>${d.clientes.size} clientes</span>`;
+  mesSubs=Object.values(d.subs).sort((a,b)=>b.metros-a.metros).map((s,i)=>({...s,idx:i+1}));
+  mesPag=0;renderMesSub();
+}
+
+function renderMesSub(){
+  const slice=mesSubs.slice(mesPag*POR_PAG,(mesPag+1)*POR_PAG);
+  document.getElementById('tbody-mes-sub').innerHTML=slice.map(s=>
+    `<tr><td style="color:var(--text3);font-family:'DM Mono',monospace">${s.idx}</td><td>${s.fam}</td>
+    <td style="color:var(--text2)">${s.sub}</td>
+    <td style="text-align:right;font-family:'DM Mono',monospace">${Math.round(s.metros).toLocaleString()}</td></tr>`
+  ).join('')||`<tr><td colspan="4" class="empty">Sin datos</td></tr>`;
+  const tot=mesSubs.length;
+  document.getElementById('msub-info').textContent=`${mesPag*POR_PAG+1}–${Math.min((mesPag+1)*POR_PAG,tot)} de ${tot}`;
+  document.getElementById('msub-prev').disabled=mesPag===0;
+  document.getElementById('msub-next').disabled=mesPag>=Math.ceil(tot/POR_PAG)-1;
+}
+function cambiarMesSub(d){mesPag+=d;renderMesSub();}
+
+function filtrarSub(){
+  const q=(document.getElementById('search-sub')?.value||'').toLowerCase();
+  const vSub={},sSub={};
+  MOV.filter(r=>r.Tipo==='SALIDA'&&MESES5.includes(parseMes(r.Fecha))).forEach(r=>{
+    const k=r.Familia+'|||'+r.Subfamilia;if(!vSub[k])vSub[k]=0;vSub[k]+=parseFloat(r.Metros)||0;
+  });
+  INV.filter(r=>r.Estado==='Disponible').forEach(r=>{
+    const k=r.Familia+'|||'+r.Subfamilia;if(!sSub[k])sSub[k]=0;sSub[k]+=parseFloat(r.Metros)||0;
+  });
+  const all=new Set([...Object.keys(vSub),...Object.keys(sSub)]);
+  subFilt=[...all].map(k=>{
+    const [fam,sub]=k.split('|||');
+    return{fam,sub,stock:Math.round(sSub[k]||0),vendido:Math.round(vSub[k]||0)};
+  }).filter(r=>!q||r.fam.toLowerCase().includes(q)||r.sub.toLowerCase().includes(q))
+    .sort((a,b)=>b.vendido-a.vendido);
+  subPag=0;renderSub();
+}
+
+function renderSub(){
+  const slice=subFilt.slice(subPag*POR_PAG,(subPag+1)*POR_PAG);
+  document.getElementById('tbody-sub').innerHTML=slice.map(r=>{
+    const e=r.stock===0?'<span class="badge br">Sin stock</span>':
+      r.vendido===0?'<span class="badge bg">Sin movimiento</span>':
+      r.vendido>r.stock?'<span class="badge ba">Stock bajo</span>':
+      '<span class="badge bd">OK</span>';
+    return`<tr><td>${r.fam}</td><td style="color:var(--text2)">${r.sub}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace">${r.stock.toLocaleString()}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace">${r.vendido.toLocaleString()}</td>
+      <td style="text-align:center">${e}</td></tr>`;
+  }).join('')||`<tr><td colspan="5" class="empty">Sin resultados</td></tr>`;
+  const tot=subFilt.length;
+  document.getElementById('sub-info').textContent=`${subPag*POR_PAG+1}–${Math.min((subPag+1)*POR_PAG,tot)} de ${tot}`;
+  document.getElementById('sub-prev').disabled=subPag===0;
+  document.getElementById('sub-next').disabled=subPag>=Math.ceil(tot/POR_PAG)-1;
+}
+function cambiarSub(d){subPag+=d;renderSub();}
+
+function renderApartados(){
+  const apart=INV.filter(r=>r.Estado==='Apartado');
+  document.getElementById('tbody-apart').innerHTML=apart.length===0
+    ?`<tr><td colspan="5" class="empty">No hay rollos apartados actualmente</td></tr>`
+    :apart.map(r=>`<tr>
+      <td>${r.ClienteApartado||'—'}</td><td>${r.Familia}</td>
+      <td style="color:var(--text2)">${r.Subfamilia}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace">${parseFloat(r.Metros||0).toLocaleString('es-MX',{maximumFractionDigits:1})}</td>
+      <td style="color:var(--text3);font-family:'DM Mono',monospace">${r.FechaApartado||'—'}</td>
+    </tr>`).join('');
+}
+
+function showTab(id,btn){
+  document.querySelectorAll('.tc').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(e=>e.classList.remove('active'));
+  document.getElementById(id).classList.add('active');btn.classList.add('active');
+}
+
+cargarDatos();
+</script>
+</body>
+</html>
