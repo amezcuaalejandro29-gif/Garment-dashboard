@@ -380,9 +380,9 @@ body{font-family:'DM Sans',sans-serif;background:#f5f5f5;color:#111;min-height:1
 <script>
 const URL_INV='https://docs.google.com/spreadsheets/d/1xAEk53oO6aPf3XRcGcgvA9e5xiAFs3WBLnKYh7lleo0/export?format=csv';
 const URL_MOV='https://docs.google.com/spreadsheets/d/175ZZ50zuSaGvGgvRw0wIwCDukgNAXzZg5TVE41uo-YA/export?format=csv';
-const URL_BD='https://docs.google.com/spreadsheets/d/1oWq0ripWahJYYHoWRBHy_FaG7rYswplVQWKoy3d2D5w/export?format=csv';
+const URL_CAT='https://docs.google.com/spreadsheets/d/1I7xcDH9Ajhptdp1z1tQCjC1HQ7iMgeKuNCl_oKYiRxY/export?format=csv';
 const POR_PAG=20;
-let INV=[],MOV=[],BD=[],mesDatos={},mesActual='';
+let INV=[],MOV=[],CAT=[],mesDatos={},mesActual='';
 let subFilt=[],subPag=0,mesSubs=[],mesPag=0;
 let mesDesde='',mesHasta='',todosMeses=[];
 let modalChart=null;
@@ -428,11 +428,11 @@ async function cargarDatos(){
   btn.disabled=true;btn.textContent='↻ Cargando...';
   setProgress(15);
   try{
-    const [rI,rM,rB]=await Promise.all([fetch(URL_INV+'&t='+Date.now()),fetch(URL_MOV+'&t='+Date.now()),fetch(URL_BD+'&t='+Date.now())]);
+    const [rI,rM,rB]=await Promise.all([fetch(URL_INV+'&t='+Date.now()),fetch(URL_MOV+'&t='+Date.now()),fetch(URL_CAT+'&t='+Date.now())]);
     setProgress(55);
     const [tI,tM,tB]=await Promise.all([rI.text(),rM.text(),rB.text()]);
     setProgress(75);
-    INV=parseCSV(tI);MOV=parseCSV(tM);BD=parseCSV(tB);
+    INV=parseCSV(tI);MOV=parseCSV(tM);CAT=parseCSV(tB);
     setProgress(88);
     inicializarMeses();
     procesarTodo();
@@ -861,22 +861,15 @@ function semBg(metros){
 function calcularStockPorFamilia(){
   stockPorFamilia={};
 
-  // PASO 1: Cargar catálogo maestro desde Base de Datos
-  // La BD tiene: col 1-4 = SKU (Lisos, Circular, etc.) con familias debajo
-  // Y de col 5 en adelante = Familia con colores debajo
-  // Usamos la parte derecha: encabezado = familia, filas = colores
-  if(BD && BD.length>0){
-    const headers=Object.keys(BD[0]);
-    // Las primeras 4 columnas son SKU categories, el resto son familias con colores
-    headers.forEach(h=>{
-      const fam=h.trim();
-      if(!fam)return;
-      BD.forEach(row=>{
-        const color=(row[h]||'').trim();
-        if(!color)return;
-        if(!stockPorFamilia[fam])stockPorFamilia[fam]={colores:{}};
-        if(!stockPorFamilia[fam].colores[color])stockPorFamilia[fam].colores[color]={metros:0,rollos:0};
-      });
+  // PASO 1: Cargar catálogo maestro — Familia + Subfamilia
+  // El CSV tiene encabezados: Familia, Subfamilia
+  if(CAT && CAT.length>0){
+    CAT.forEach(r=>{
+      const fam=(r.Familia||'').trim();
+      const sub=(r.Subfamilia||'').trim();
+      if(!fam||!sub)return;
+      if(!stockPorFamilia[fam])stockPorFamilia[fam]={colores:{}};
+      if(!stockPorFamilia[fam].colores[sub])stockPorFamilia[fam].colores[sub]={metros:0,rollos:0};
     });
   }
 
