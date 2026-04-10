@@ -871,10 +871,10 @@ function calcularStockPorFamilia(){
     CAT.forEach(r=>{
       const fam=(r.Familia||'').trim();
       const sub=(r.Subfamilia||'').trim();
+      const activo=(r.Activo||'SI').trim().toUpperCase();
       if(!fam||!sub)return;
       const nfam=normKey(fam);
       const nsub=normKey(sub);
-      // Guardar nombre canónico (del catálogo)
       if(!famMap[nfam])famMap[nfam]=fam;
       const canonFam=famMap[nfam];
       const mapKey=nfam+'|||'+nsub;
@@ -882,7 +882,9 @@ function calcularStockPorFamilia(){
       const canonSub=subMap[mapKey];
       if(!stockPorFamilia[canonFam])stockPorFamilia[canonFam]={colores:{}};
       if(!stockPorFamilia[canonFam].colores[canonSub])
-        stockPorFamilia[canonFam].colores[canonSub]={metros:0,rollos:0};
+        stockPorFamilia[canonFam].colores[canonSub]={metros:0,rollos:0,activo:activo==='SI'};
+      else
+        stockPorFamilia[canonFam].colores[canonSub].activo=activo==='SI';
     });
   }
 
@@ -906,22 +908,25 @@ function calcularStockPorFamilia(){
       stockPorFamilia[canonFam].colores[canonSub].rollos++;
     }
   });
-  // Calcular prioridad por familia (el peor color define la familia)
+  // Calcular prioridad por familia — solo colores ACTIVOS afectan el semáforo
   Object.keys(stockPorFamilia).forEach(f=>{
     const colores=stockPorFamilia[f].colores;
     let peorPrioridad=3,totalMetros=0,totalColores=0;
     Object.values(colores).forEach(c=>{
       const m=Math.round(c.metros);
-      const p=semPrioridad(m);
-      if(p<peorPrioridad)peorPrioridad=p;
       totalMetros+=m;
       totalColores++;
+      // Solo los activos afectan el semáforo de la familia
+      if(c.activo!==false){
+        const p=semPrioridad(m);
+        if(p<peorPrioridad)peorPrioridad=p;
+      }
     });
     stockPorFamilia[f].peorPrioridad=peorPrioridad;
     stockPorFamilia[f].totalMetros=Math.round(totalMetros);
     stockPorFamilia[f].totalColores=totalColores;
-    const rojos=Object.values(colores).filter(c=>semPrioridad(Math.round(c.metros))<=1).length;
-    const naranjas=Object.values(colores).filter(c=>semPrioridad(Math.round(c.metros))===2).length;
+    const rojos=Object.values(colores).filter(c=>c.activo!==false&&semPrioridad(Math.round(c.metros))<=1).length;
+    const naranjas=Object.values(colores).filter(c=>c.activo!==false&&semPrioridad(Math.round(c.metros))===2).length;
     stockPorFamilia[f].rojos=rojos;
     stockPorFamilia[f].naranjas=naranjas;
   });
@@ -1015,12 +1020,13 @@ function verDetalleStock(fam){
   const colores=Object.entries(d.colores).map(([sub,c])=>({sub,metros:Math.round(c.metros),rollos:c.rollos}))
     .sort((a,b)=>semPrioridad(a.metros)-semPrioridad(b.metros)||a.metros-b.metros);
   document.getElementById('tbody-stock-detalle').innerHTML=colores.map(c=>{
-    const col=semColor(c.metros);
-    const bg=semBg(c.metros);
-    const lbl=semLabel(c.metros);
-    const barW=c.metros===0?0:c.metros<=200?Math.max(5,c.metros/200*25):c.metros<=1000?25+c.metros/1000*35:Math.min(100,60+c.metros/5000*40);
-    return`<tr style="background:${bg}">
-      <td style="font-weight:500;color:#111">${c.sub||'—'}</td>
+    const inactivo=c.activo===false;
+    const col=inactivo?'#bbb':semColor(c.metros);
+    const bg=inactivo?'#fafafa':semBg(c.metros);
+    const lbl=inactivo?'Descontinuado':semLabel(c.metros);
+    const barW=inactivo||c.metros===0?0:c.metros<=200?Math.max(5,c.metros/200*25):c.metros<=1000?25+c.metros/1000*35:Math.min(100,60+c.metros/5000*40);
+    return`<tr style="background:${bg};opacity:${inactivo?'0.5':'1'}">
+      <td style="font-weight:500;color:${inactivo?'#aaa':'#111'}">${c.sub||'—'}${inactivo?' <span style="font-size:10px;color:#bbb">(descontinuado)</span>':''}</td>
       <td style="text-align:right;font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:${col}">
         ${c.metros===0?'—':c.metros.toLocaleString('es-MX')+' m'}
       </td>
@@ -1030,7 +1036,7 @@ function verDetalleStock(fam){
           <div style="flex:1;height:10px;background:#eee;border-radius:5px;overflow:hidden">
             <div style="height:100%;width:${barW}%;background:${col};border-radius:5px"></div>
           </div>
-          <span style="font-size:11px;font-weight:600;color:${col};font-family:monospace;white-space:nowrap;width:80px">${lbl}</span>
+          <span style="font-size:11px;font-weight:600;color:${col};font-family:monospace;white-space:nowrap;width:90px">${lbl}</span>
         </div>
       </td>
     </tr>`;
