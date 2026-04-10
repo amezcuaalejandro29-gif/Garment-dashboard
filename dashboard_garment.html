@@ -209,6 +209,7 @@ body{font-family:'DM Sans',sans-serif;background:#f5f5f5;color:#111;min-height:1
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
       <div class="tabs-nav">
         <button class="tab-btn active" onclick="showTab('graficas',this)">Gráficas por familia</button>
+        <button class="tab-btn" onclick="showTab('stock',this)">Control de Stock</button>
         <button class="tab-btn" onclick="showTab('tendencias',this)">Tendencias y resurtido</button>
         <button class="tab-btn" onclick="showTab('mes',this)">Por mes</button>
         <button class="tab-btn" onclick="showTab('subfamilias',this)">Subfamilias</button>
@@ -220,6 +221,50 @@ body{font-family:'DM Sans',sans-serif;background:#f5f5f5;color:#111;min-height:1
     <div id="graficas" class="tc active">
       <div style="font-size:11px;color:#bbb;margin-bottom:12px">Haz clic en cualquier tarjeta para ver el detalle completo 👆</div>
       <div class="fam-grid" id="fam-grid"><div class="empty"><span class="spinner"></span>Cargando...</div></div>
+    </div>
+
+    <!-- CONTROL DE STOCK -->
+    <div id="stock" class="tc">
+      <!-- KPIs semáforo -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px" id="stock-kpis"></div>
+
+      <!-- Leyenda -->
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;align-items:center">
+        <div style="display:flex;align-items:center;gap:5px;background:#f0faf0;border:1px solid #c0e8c0;border-radius:6px;padding:4px 10px;font-size:11px;color:#2a7a2a;font-family:monospace">⬤ Buen stock &gt;1,000 m</div>
+        <div style="display:flex;align-items:center;gap:5px;background:#fff8e0;border:1px solid #f0d060;border-radius:6px;padding:4px 10px;font-size:11px;color:#7a5800;font-family:monospace">⬤ Stock bajo 200–1,000 m</div>
+        <div style="display:flex;align-items:center;gap:5px;background:#fff0f0;border:1px solid #ffd0d0;border-radius:6px;padding:4px 10px;font-size:11px;color:#cc0000;font-family:monospace">⬤ Revisar ya &lt;200 m</div>
+        <div style="display:flex;align-items:center;gap:5px;background:#f5f5f5;border:1px solid #ddd;border-radius:6px;padding:4px 10px;font-size:11px;color:#888;font-family:monospace">⬤ Sin stock 0 m</div>
+      </div>
+
+      <!-- Filtros -->
+      <div class="search-row" style="margin-bottom:14px">
+        <input class="search-inp" type="text" id="search-stock" placeholder="Buscar familia o color..." oninput="filtrarStock()">
+        <select class="sort-select" id="fam-stock" onchange="filtrarStock()">
+          <option value="">— Todas las familias —</option>
+        </select>
+        <select class="sort-select" id="sort-stock" onchange="filtrarStock()">
+          <option value="estado">Ordenar: Urgentes primero</option>
+          <option value="stock-asc">Ordenar: Menor stock</option>
+          <option value="stock-desc">Ordenar: Mayor stock</option>
+          <option value="nombre">Ordenar: Nombre A-Z</option>
+        </select>
+      </div>
+
+      <table class="tbl">
+        <thead><tr>
+          <th>Familia</th>
+          <th>Color / Subfamilia</th>
+          <th style="text-align:right">Stock actual</th>
+          <th style="text-align:right">Rollos</th>
+          <th style="text-align:center;width:140px">Semáforo</th>
+        </tr></thead>
+        <tbody id="tbody-stock"><tr><td colspan="5" class="empty"><span class="spinner"></span>Cargando...</td></tr></tbody>
+      </table>
+      <div class="pager">
+        <button id="stock-prev" onclick="cambiarStock(-1)" disabled>← Ant</button>
+        <span id="stock-info"></span>
+        <button id="stock-next" onclick="cambiarStock(1)">Sig →</button>
+      </div>
     </div>
 
     <!-- TENDENCIAS -->
@@ -422,6 +467,7 @@ function actualizarTotalFiltro(){
 function procesarTodo(){
   renderKPIs();procesarMovimientos();renderGraficas();
   calcularTendData();renderTend();renderMesBtns();renderApartados();filtrarSub();
+  poblarFamStock();filtrarStock();
 }
 
 function renderKPIs(){
@@ -777,6 +823,120 @@ function showTab(id,btn){
   document.querySelectorAll('.tab-btn').forEach(e=>e.classList.remove('active'));
   document.getElementById(id).classList.add('active');btn.classList.add('active');
 }
+
+// ─── CONTROL DE STOCK ────────────────────────────────────────
+let stockFilt=[], stockPag=0;
+
+function renderStockKPIs(data){
+  const verde=data.filter(r=>r.metros>1000).length;
+  const naranja=data.filter(r=>r.metros>200&&r.metros<=1000).length;
+  const rojo=data.filter(r=>r.metros>0&&r.metros<=200).length;
+  const cero=data.filter(r=>r.metros===0).length;
+  document.getElementById('stock-kpis').innerHTML=`
+    <div class="kpi" style="border-left:3px solid #16a34a">
+      <div class="kpi-label">Buen stock</div>
+      <div class="kpi-val" style="color:#16a34a;font-size:22px">${verde}</div>
+      <div class="kpi-sub">más de 1,000 m</div>
+    </div>
+    <div class="kpi" style="border-left:3px solid #d97706">
+      <div class="kpi-label">Stock bajo</div>
+      <div class="kpi-val" style="color:#d97706;font-size:22px">${naranja}</div>
+      <div class="kpi-sub">200 – 1,000 m</div>
+    </div>
+    <div class="kpi" style="border-left:3px solid #cc0000">
+      <div class="kpi-label">Revisar ya</div>
+      <div class="kpi-val" style="color:#cc0000;font-size:22px">${rojo}</div>
+      <div class="kpi-sub">menos de 200 m</div>
+    </div>
+    <div class="kpi" style="border-left:3px solid #ccc">
+      <div class="kpi-label">Sin stock</div>
+      <div class="kpi-val" style="color:#aaa;font-size:22px">${cero}</div>
+      <div class="kpi-sub">0 metros</div>
+    </div>`;
+}
+
+function poblarFamStock(){
+  const fams=[...new Set(INV.map(r=>(r.Familia||'').trim()))].filter(f=>f).sort();
+  const sel=document.getElementById('fam-stock');
+  if(!sel)return;
+  sel.innerHTML='<option value="">— Todas las familias —</option>'+fams.map(f=>`<option value="${f}">${f}</option>`).join('');
+}
+
+function filtrarStock(){
+  const q=(document.getElementById('search-stock')?.value||'').toLowerCase();
+  const ord=document.getElementById('sort-stock')?.value||'stock-asc';
+  const fam=document.getElementById('fam-stock')?.value||'';
+
+  // Agrupar por Familia + Subfamilia
+  const grupos={};
+  INV.filter(r=>(r.Estado||'').trim().toLowerCase()==='disponible').forEach(r=>{
+    const f=(r.Familia||'').trim();
+    const s=(r.Subfamilia||'').trim();
+    if(!f)return;
+    const k=f+'|||'+s;
+    if(!grupos[k])grupos[k]={familia:f,subfamilia:s,metros:0,rollos:0};
+    grupos[k].metros+=parseFloat(r.Metros)||0;
+    grupos[k].rollos++;
+  });
+
+  // Incluir TODOS los rollos del catálogo aunque estén agotados
+  INV.forEach(r=>{
+    const f=(r.Familia||'').trim();
+    const s=(r.Subfamilia||'').trim();
+    if(!f)return;
+    const k=f+'|||'+s;
+    if(!grupos[k])grupos[k]={familia:f,subfamilia:s,metros:0,rollos:0};
+  });
+
+  stockFilt=Object.values(grupos).map(g=>({...g,metros:Math.round(g.metros)}));
+
+  // Filtros
+  if(q)stockFilt=stockFilt.filter(r=>r.familia.toLowerCase().includes(q)||r.subfamilia.toLowerCase().includes(q));
+  if(fam)stockFilt=stockFilt.filter(r=>r.familia===fam);
+
+  // Orden
+  const prioridad=r=>r.metros===0?0:r.metros<=200?1:r.metros<=1000?2:3;
+  if(ord==='stock-asc')stockFilt.sort((a,b)=>a.metros-b.metros);
+  else if(ord==='stock-desc')stockFilt.sort((a,b)=>b.metros-a.metros);
+  else if(ord==='nombre')stockFilt.sort((a,b)=>a.familia.localeCompare(b.familia)||a.subfamilia.localeCompare(b.subfamilia));
+  else if(ord==='estado')stockFilt.sort((a,b)=>prioridad(a)-prioridad(b));
+
+  renderStockKPIs(stockFilt);
+  stockPag=0;
+  renderStock();
+}
+
+function renderStock(){
+  const slice=stockFilt.slice(stockPag*POR_PAG,(stockPag+1)*POR_PAG);
+  document.getElementById('tbody-stock').innerHTML=slice.map(r=>{
+    let semColor,bgColor,badgeLabel,barW=0;
+    if(r.metros===0){semColor='#ccc';bgColor='#f5f5f5';badgeLabel='Sin stock';barW=0;}
+    else if(r.metros<=200){semColor='#cc0000';bgColor='#fff5f5';badgeLabel='Revisar ya';barW=Math.max(4,r.metros/200*30);}
+    else if(r.metros<=1000){semColor='#d97706';bgColor='#fffbf0';badgeLabel='Stock bajo';barW=30+r.metros/1000*30;}
+    else{semColor='#16a34a';bgColor='#f5fff8';badgeLabel='Buen stock';barW=Math.min(100,60+r.metros/5000*40);}
+    return`<tr style="background:${bgColor}">
+      <td style="font-weight:500;color:#111">${r.familia}</td>
+      <td style="color:#555">${r.subfamilia||'—'}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:${semColor}">
+        ${r.metros===0?'—':r.metros.toLocaleString('es-MX')+' m'}
+      </td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;color:#aaa;font-size:12px">${r.rollos>0?r.rollos+' rollos':'—'}</td>
+      <td style="text-align:center;padding:6px 8px">
+        <div style="display:flex;align-items:center;gap:6px;justify-content:center">
+          <div style="flex:1;height:8px;background:#eee;border-radius:4px;overflow:hidden;max-width:80px">
+            <div style="height:100%;width:${barW}%;background:${semColor};border-radius:4px;transition:width 0.3s"></div>
+          </div>
+          <span style="font-size:10px;font-weight:600;color:${semColor};font-family:monospace;white-space:nowrap">${badgeLabel}</span>
+        </div>
+      </td>
+    </tr>`;
+  }).join('')||`<tr><td colspan="5" class="empty">Sin resultados</td></tr>`;
+  const tot=stockFilt.length;
+  document.getElementById('stock-info').textContent=`${Math.min(stockPag*POR_PAG+1,tot)}–${Math.min((stockPag+1)*POR_PAG,tot)} de ${tot}`;
+  document.getElementById('stock-prev').disabled=stockPag===0;
+  document.getElementById('stock-next').disabled=stockPag>=Math.ceil(tot/POR_PAG)-1;
+}
+function cambiarStock(d){stockPag+=d;renderStock();}
 
 cargarDatos();
 </script>
