@@ -858,18 +858,31 @@ function semBg(metros){
   return'#f5fff8';
 }
 
+function normKey(s){return(s||'').trim().toLowerCase();}
+
 function calcularStockPorFamilia(){
   stockPorFamilia={};
+  // Mapas de normalización para evitar duplicados por capitalización/espacios
+  const famMap={};  // normKey(fam) -> fam original del catálogo
+  const subMap={};  // normKey(fam)+'|||'+normKey(sub) -> sub original del catálogo
 
   // PASO 1: Cargar catálogo maestro — Familia + Subfamilia
-  // El CSV tiene encabezados: Familia, Subfamilia
   if(CAT && CAT.length>0){
     CAT.forEach(r=>{
       const fam=(r.Familia||'').trim();
       const sub=(r.Subfamilia||'').trim();
       if(!fam||!sub)return;
-      if(!stockPorFamilia[fam])stockPorFamilia[fam]={colores:{}};
-      if(!stockPorFamilia[fam].colores[sub])stockPorFamilia[fam].colores[sub]={metros:0,rollos:0};
+      const nfam=normKey(fam);
+      const nsub=normKey(sub);
+      // Guardar nombre canónico (del catálogo)
+      if(!famMap[nfam])famMap[nfam]=fam;
+      const canonFam=famMap[nfam];
+      const mapKey=nfam+'|||'+nsub;
+      if(!subMap[mapKey])subMap[mapKey]=sub;
+      const canonSub=subMap[mapKey];
+      if(!stockPorFamilia[canonFam])stockPorFamilia[canonFam]={colores:{}};
+      if(!stockPorFamilia[canonFam].colores[canonSub])
+        stockPorFamilia[canonFam].colores[canonSub]={metros:0,rollos:0};
     });
   }
 
@@ -878,12 +891,19 @@ function calcularStockPorFamilia(){
     const f=(r.Familia||'').trim();
     const s=(r.Subfamilia||'').trim();
     if(!f)return;
-    if(!stockPorFamilia[f])stockPorFamilia[f]={colores:{}};
-    if(!stockPorFamilia[f].colores[s])stockPorFamilia[f].colores[s]={metros:0,rollos:0};
+    const nfam=normKey(f);
+    const nsub=normKey(s);
+    // Usar nombre canónico si existe en catálogo, si no usar el del inventario
+    const canonFam=famMap[nfam]||f;
+    const mapKey=nfam+'|||'+nsub;
+    const canonSub=subMap[mapKey]||s;
+    if(!stockPorFamilia[canonFam])stockPorFamilia[canonFam]={colores:{}};
+    if(!stockPorFamilia[canonFam].colores[canonSub])
+      stockPorFamilia[canonFam].colores[canonSub]={metros:0,rollos:0};
     const estado=(r.Estado||'').trim().toLowerCase();
     if(estado==='disponible'){
-      stockPorFamilia[f].colores[s].metros+=parseFloat(r.Metros)||0;
-      stockPorFamilia[f].colores[s].rollos++;
+      stockPorFamilia[canonFam].colores[canonSub].metros+=parseFloat(r.Metros)||0;
+      stockPorFamilia[canonFam].colores[canonSub].rollos++;
     }
   });
   // Calcular prioridad por familia (el peor color define la familia)
