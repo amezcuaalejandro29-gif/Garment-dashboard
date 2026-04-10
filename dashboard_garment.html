@@ -979,11 +979,18 @@ function renderStockFams(fams){
 }
 
 function verDetalleStock(fam){
+  fam=(fam||'').trim();
+  // Buscar con trim por si hay espacios
+  let d=stockPorFamilia[fam];
+  if(!d){
+    // Intentar buscar ignorando mayúsculas
+    const key=Object.keys(stockPorFamilia).find(k=>k.trim().toLowerCase()===fam.toLowerCase());
+    if(key)d=stockPorFamilia[key];
+  }
+  if(!d){alert('No se encontró: '+fam);return;}
   document.getElementById('stock-nivel1').style.display='none';
   document.getElementById('stock-nivel2').style.display='block';
   document.getElementById('stock-fam-titulo').textContent=fam;
-  const d=stockPorFamilia[fam];
-  if(!d)return;
   document.getElementById('stock-fam-resumen').textContent=`${d.totalColores} colores · ${d.totalMetros.toLocaleString('es-MX')} m totales`;
   const colores=Object.entries(d.colores).map(([sub,c])=>({sub,metros:Math.round(c.metros),rollos:c.rollos}))
     .sort((a,b)=>semPrioridad(a.metros)-semPrioridad(b.metros)||a.metros-b.metros);
