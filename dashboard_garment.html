@@ -225,45 +225,50 @@ body{font-family:'DM Sans',sans-serif;background:#f5f5f5;color:#111;min-height:1
 
     <!-- CONTROL DE STOCK -->
     <div id="stock" class="tc">
-      <!-- KPIs semáforo -->
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px" id="stock-kpis"></div>
 
-      <!-- Leyenda -->
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;align-items:center">
-        <div style="display:flex;align-items:center;gap:5px;background:#f0faf0;border:1px solid #c0e8c0;border-radius:6px;padding:4px 10px;font-size:11px;color:#2a7a2a;font-family:monospace">⬤ Buen stock &gt;1,000 m</div>
-        <div style="display:flex;align-items:center;gap:5px;background:#fff8e0;border:1px solid #f0d060;border-radius:6px;padding:4px 10px;font-size:11px;color:#7a5800;font-family:monospace">⬤ Stock bajo 200–1,000 m</div>
-        <div style="display:flex;align-items:center;gap:5px;background:#fff0f0;border:1px solid #ffd0d0;border-radius:6px;padding:4px 10px;font-size:11px;color:#cc0000;font-family:monospace">⬤ Revisar ya &lt;200 m</div>
-        <div style="display:flex;align-items:center;gap:5px;background:#f5f5f5;border:1px solid #ddd;border-radius:6px;padding:4px 10px;font-size:11px;color:#888;font-family:monospace">⬤ Sin stock 0 m</div>
+      <!-- NIVEL 1: Vista general de familias -->
+      <div id="stock-nivel1">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px" id="stock-kpis"></div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;align-items:center">
+          <span style="font-size:11px;color:#aaa;font-family:'DM Mono',monospace">SEMÁFORO POR FAMILIA:</span>
+          <span style="background:#fff0f0;border:1px solid #ffd0d0;border-radius:6px;padding:3px 10px;font-size:11px;color:#cc0000">🔴 Tiene colores en rojo</span>
+          <span style="background:#fff8e0;border:1px solid #f0d060;border-radius:6px;padding:3px 10px;font-size:11px;color:#7a5800">🟠 Tiene colores en naranja</span>
+          <span style="background:#f0faf0;border:1px solid #c0e8c0;border-radius:6px;padding:3px 10px;font-size:11px;color:#2a7a2a">🟢 Todo bien</span>
+          <span style="font-size:11px;color:#bbb">· Clic en familia para ver detalle</span>
+        </div>
+        <div class="search-row" style="margin-bottom:14px">
+          <input class="search-inp" type="text" id="search-stock-fam" placeholder="Buscar familia..." oninput="filtrarStockFams()">
+          <select class="sort-select" id="sort-stock-fam" onchange="filtrarStockFams()">
+            <option value="urgente">Ordenar: Urgentes primero</option>
+            <option value="nombre">Ordenar: Nombre A-Z</option>
+            <option value="metros">Ordenar: Mayor stock</option>
+          </select>
+        </div>
+        <div id="stock-fam-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px"></div>
       </div>
 
-      <!-- Filtros -->
-      <div class="search-row" style="margin-bottom:14px">
-        <input class="search-inp" type="text" id="search-stock" placeholder="Buscar familia o color..." oninput="filtrarStock()">
-        <select class="sort-select" id="fam-stock" onchange="filtrarStock()">
-          <option value="">— Todas las familias —</option>
-        </select>
-        <select class="sort-select" id="sort-stock" onchange="filtrarStock()">
-          <option value="estado">Ordenar: Urgentes primero</option>
-          <option value="stock-asc">Ordenar: Menor stock</option>
-          <option value="stock-desc">Ordenar: Mayor stock</option>
-          <option value="nombre">Ordenar: Nombre A-Z</option>
-        </select>
-      </div>
-
-      <table class="tbl">
-        <thead><tr>
-          <th>Familia</th>
-          <th>Color / Subfamilia</th>
-          <th style="text-align:right">Stock actual</th>
-          <th style="text-align:right">Rollos</th>
-          <th style="text-align:center;width:140px">Semáforo</th>
-        </tr></thead>
-        <tbody id="tbody-stock"><tr><td colspan="5" class="empty"><span class="spinner"></span>Cargando...</td></tr></tbody>
-      </table>
-      <div class="pager">
-        <button id="stock-prev" onclick="cambiarStock(-1)" disabled>← Ant</button>
-        <span id="stock-info"></span>
-        <button id="stock-next" onclick="cambiarStock(1)">Sig →</button>
+      <!-- NIVEL 2: Detalle de una familia -->
+      <div id="stock-nivel2" style="display:none">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+          <button onclick="volverStockFams()" style="font-size:12px;padding:6px 14px;border-radius:6px;border:1.5px solid #cc0000;background:#fff;color:#cc0000;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600">← Volver</button>
+          <div style="font-size:16px;font-weight:600;color:#111" id="stock-fam-titulo">—</div>
+          <div style="font-size:12px;color:#aaa" id="stock-fam-resumen"></div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+          <span style="background:#fff0f0;border:1px solid #ffd0d0;border-radius:6px;padding:3px 10px;font-size:11px;color:#cc0000">🔴 Revisar ya &lt;200 m</span>
+          <span style="background:#fff8e0;border:1px solid #f0d060;border-radius:6px;padding:3px 10px;font-size:11px;color:#7a5800">🟠 Stock bajo 200–1,000 m</span>
+          <span style="background:#f0faf0;border:1px solid #c0e8c0;border-radius:6px;padding:3px 10px;font-size:11px;color:#2a7a2a">🟢 Buen stock &gt;1,000 m</span>
+          <span style="background:#f5f5f5;border:1px solid #ddd;border-radius:6px;padding:3px 10px;font-size:11px;color:#888">⚪ Sin stock</span>
+        </div>
+        <table class="tbl">
+          <thead><tr>
+            <th>Color / Subfamilia</th>
+            <th style="text-align:right">Stock actual</th>
+            <th style="text-align:right">Rollos</th>
+            <th style="text-align:center;width:160px">Semáforo</th>
+          </tr></thead>
+          <tbody id="tbody-stock-detalle"></tbody>
+        </table>
       </div>
     </div>
 
@@ -375,8 +380,9 @@ body{font-family:'DM Sans',sans-serif;background:#f5f5f5;color:#111;min-height:1
 <script>
 const URL_INV='https://docs.google.com/spreadsheets/d/1xAEk53oO6aPf3XRcGcgvA9e5xiAFs3WBLnKYh7lleo0/export?format=csv';
 const URL_MOV='https://docs.google.com/spreadsheets/d/175ZZ50zuSaGvGgvRw0wIwCDukgNAXzZg5TVE41uo-YA/export?format=csv';
+const URL_BD='https://docs.google.com/spreadsheets/d/1oWq0ripWahJYYHoWRBHy_FaG7rYswplVQWKoy3d2D5w/export?format=csv';
 const POR_PAG=20;
-let INV=[],MOV=[],mesDatos={},mesActual='';
+let INV=[],MOV=[],BD=[],mesDatos={},mesActual='';
 let subFilt=[],subPag=0,mesSubs=[],mesPag=0;
 let mesDesde='',mesHasta='',todosMeses=[];
 let modalChart=null;
@@ -422,11 +428,11 @@ async function cargarDatos(){
   btn.disabled=true;btn.textContent='↻ Cargando...';
   setProgress(15);
   try{
-    const [rI,rM]=await Promise.all([fetch(URL_INV+'&t='+Date.now()),fetch(URL_MOV+'&t='+Date.now())]);
+    const [rI,rM,rB]=await Promise.all([fetch(URL_INV+'&t='+Date.now()),fetch(URL_MOV+'&t='+Date.now()),fetch(URL_BD+'&t='+Date.now())]);
     setProgress(55);
-    const [tI,tM]=await Promise.all([rI.text(),rM.text()]);
+    const [tI,tM,tB]=await Promise.all([rI.text(),rM.text(),rB.text()]);
     setProgress(75);
-    INV=parseCSV(tI);MOV=parseCSV(tM);
+    INV=parseCSV(tI);MOV=parseCSV(tM);BD=parseCSV(tB);
     setProgress(88);
     inicializarMeses();
     procesarTodo();
@@ -824,119 +830,203 @@ function showTab(id,btn){
   document.getElementById(id).classList.add('active');btn.classList.add('active');
 }
 
-// ─── CONTROL DE STOCK ────────────────────────────────────────
-let stockFilt=[], stockPag=0;
+// ─── CONTROL DE STOCK DOS NIVELES ────────────────────────────
+let stockPorFamilia={};
 
-function renderStockKPIs(data){
-  const verde=data.filter(r=>r.metros>1000).length;
-  const naranja=data.filter(r=>r.metros>200&&r.metros<=1000).length;
-  const rojo=data.filter(r=>r.metros>0&&r.metros<=200).length;
-  const cero=data.filter(r=>r.metros===0).length;
-  document.getElementById('stock-kpis').innerHTML=`
-    <div class="kpi" style="border-left:3px solid #16a34a">
-      <div class="kpi-label">Buen stock</div>
-      <div class="kpi-val" style="color:#16a34a;font-size:22px">${verde}</div>
-      <div class="kpi-sub">más de 1,000 m</div>
-    </div>
-    <div class="kpi" style="border-left:3px solid #d97706">
-      <div class="kpi-label">Stock bajo</div>
-      <div class="kpi-val" style="color:#d97706;font-size:22px">${naranja}</div>
-      <div class="kpi-sub">200 – 1,000 m</div>
-    </div>
-    <div class="kpi" style="border-left:3px solid #cc0000">
-      <div class="kpi-label">Revisar ya</div>
-      <div class="kpi-val" style="color:#cc0000;font-size:22px">${rojo}</div>
-      <div class="kpi-sub">menos de 200 m</div>
-    </div>
-    <div class="kpi" style="border-left:3px solid #ccc">
-      <div class="kpi-label">Sin stock</div>
-      <div class="kpi-val" style="color:#aaa;font-size:22px">${cero}</div>
-      <div class="kpi-sub">0 metros</div>
-    </div>`;
+function semPrioridad(metros){
+  if(metros===0)return 0;
+  if(metros<=200)return 1;
+  if(metros<=1000)return 2;
+  return 3;
+}
+function semColor(metros){
+  if(metros===0)return'#ccc';
+  if(metros<=200)return'#cc0000';
+  if(metros<=1000)return'#d97706';
+  return'#16a34a';
+}
+function semLabel(metros){
+  if(metros===0)return'Sin stock';
+  if(metros<=200)return'Revisar ya';
+  if(metros<=1000)return'Stock bajo';
+  return'Buen stock';
+}
+function semBg(metros){
+  if(metros===0)return'#f5f5f5';
+  if(metros<=200)return'#fff5f5';
+  if(metros<=1000)return'#fffbf0';
+  return'#f5fff8';
 }
 
-function poblarFamStock(){
-  const fams=[...new Set(INV.map(r=>(r.Familia||'').trim()))].filter(f=>f).sort();
-  const sel=document.getElementById('fam-stock');
-  if(!sel)return;
-  sel.innerHTML='<option value="">— Todas las familias —</option>'+fams.map(f=>`<option value="${f}">${f}</option>`).join('');
-}
+function calcularStockPorFamilia(){
+  stockPorFamilia={};
 
-function filtrarStock(){
-  const q=(document.getElementById('search-stock')?.value||'').toLowerCase();
-  const ord=document.getElementById('sort-stock')?.value||'stock-asc';
-  const fam=document.getElementById('fam-stock')?.value||'';
+  // PASO 1: Cargar catálogo maestro desde Base de Datos
+  // La BD tiene: col 1-4 = SKU (Lisos, Circular, etc.) con familias debajo
+  // Y de col 5 en adelante = Familia con colores debajo
+  // Usamos la parte derecha: encabezado = familia, filas = colores
+  if(BD && BD.length>0){
+    const headers=Object.keys(BD[0]);
+    // Las primeras 4 columnas son SKU categories, el resto son familias con colores
+    headers.forEach(h=>{
+      const fam=h.trim();
+      if(!fam)return;
+      BD.forEach(row=>{
+        const color=(row[h]||'').trim();
+        if(!color)return;
+        if(!stockPorFamilia[fam])stockPorFamilia[fam]={colores:{}};
+        if(!stockPorFamilia[fam].colores[color])stockPorFamilia[fam].colores[color]={metros:0,rollos:0};
+      });
+    });
+  }
 
-  // Agrupar por Familia + Subfamilia
-  const grupos={};
-  INV.filter(r=>(r.Estado||'').trim().toLowerCase()==='disponible').forEach(r=>{
-    const f=(r.Familia||'').trim();
-    const s=(r.Subfamilia||'').trim();
-    if(!f)return;
-    const k=f+'|||'+s;
-    if(!grupos[k])grupos[k]={familia:f,subfamilia:s,metros:0,rollos:0};
-    grupos[k].metros+=parseFloat(r.Metros)||0;
-    grupos[k].rollos++;
-  });
-
-  // Incluir TODOS los rollos del catálogo aunque estén agotados
+  // PASO 2: Sumar metros reales del inventario actual
   INV.forEach(r=>{
     const f=(r.Familia||'').trim();
     const s=(r.Subfamilia||'').trim();
     if(!f)return;
-    const k=f+'|||'+s;
-    if(!grupos[k])grupos[k]={familia:f,subfamilia:s,metros:0,rollos:0};
+    if(!stockPorFamilia[f])stockPorFamilia[f]={colores:{}};
+    if(!stockPorFamilia[f].colores[s])stockPorFamilia[f].colores[s]={metros:0,rollos:0};
+    const estado=(r.Estado||'').trim().toLowerCase();
+    if(estado==='disponible'){
+      stockPorFamilia[f].colores[s].metros+=parseFloat(r.Metros)||0;
+      stockPorFamilia[f].colores[s].rollos++;
+    }
   });
-
-  stockFilt=Object.values(grupos).map(g=>({...g,metros:Math.round(g.metros)}));
-
-  // Filtros
-  if(q)stockFilt=stockFilt.filter(r=>r.familia.toLowerCase().includes(q)||r.subfamilia.toLowerCase().includes(q));
-  if(fam)stockFilt=stockFilt.filter(r=>r.familia===fam);
-
-  // Orden
-  const prioridad=r=>r.metros===0?0:r.metros<=200?1:r.metros<=1000?2:3;
-  if(ord==='stock-asc')stockFilt.sort((a,b)=>a.metros-b.metros);
-  else if(ord==='stock-desc')stockFilt.sort((a,b)=>b.metros-a.metros);
-  else if(ord==='nombre')stockFilt.sort((a,b)=>a.familia.localeCompare(b.familia)||a.subfamilia.localeCompare(b.subfamilia));
-  else if(ord==='estado')stockFilt.sort((a,b)=>prioridad(a)-prioridad(b));
-
-  renderStockKPIs(stockFilt);
-  stockPag=0;
-  renderStock();
+  // Calcular prioridad por familia (el peor color define la familia)
+  Object.keys(stockPorFamilia).forEach(f=>{
+    const colores=stockPorFamilia[f].colores;
+    let peorPrioridad=3,totalMetros=0,totalColores=0;
+    Object.values(colores).forEach(c=>{
+      const m=Math.round(c.metros);
+      const p=semPrioridad(m);
+      if(p<peorPrioridad)peorPrioridad=p;
+      totalMetros+=m;
+      totalColores++;
+    });
+    stockPorFamilia[f].peorPrioridad=peorPrioridad;
+    stockPorFamilia[f].totalMetros=Math.round(totalMetros);
+    stockPorFamilia[f].totalColores=totalColores;
+    const rojos=Object.values(colores).filter(c=>semPrioridad(Math.round(c.metros))<=1).length;
+    const naranjas=Object.values(colores).filter(c=>semPrioridad(Math.round(c.metros))===2).length;
+    stockPorFamilia[f].rojos=rojos;
+    stockPorFamilia[f].naranjas=naranjas;
+  });
 }
 
-function renderStock(){
-  const slice=stockFilt.slice(stockPag*POR_PAG,(stockPag+1)*POR_PAG);
-  document.getElementById('tbody-stock').innerHTML=slice.map(r=>{
-    let semColor,bgColor,badgeLabel,barW=0;
-    if(r.metros===0){semColor='#ccc';bgColor='#f5f5f5';badgeLabel='Sin stock';barW=0;}
-    else if(r.metros<=200){semColor='#cc0000';bgColor='#fff5f5';badgeLabel='Revisar ya';barW=Math.max(4,r.metros/200*30);}
-    else if(r.metros<=1000){semColor='#d97706';bgColor='#fffbf0';badgeLabel='Stock bajo';barW=30+r.metros/1000*30;}
-    else{semColor='#16a34a';bgColor='#f5fff8';badgeLabel='Buen stock';barW=Math.min(100,60+r.metros/5000*40);}
-    return`<tr style="background:${bgColor}">
-      <td style="font-weight:500;color:#111">${r.familia}</td>
-      <td style="color:#555">${r.subfamilia||'—'}</td>
-      <td style="text-align:right;font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:${semColor}">
-        ${r.metros===0?'—':r.metros.toLocaleString('es-MX')+' m'}
+function renderStockKPIs(){
+  const fams=Object.values(stockPorFamilia);
+  const rojas=fams.filter(f=>f.peorPrioridad<=1).length;
+  const naranjas=fams.filter(f=>f.peorPrioridad===2).length;
+  const verdes=fams.filter(f=>f.peorPrioridad===3).length;
+  const el=document.getElementById('stock-kpis');
+  if(!el)return;
+  el.innerHTML=`
+    <div class="kpi" style="border-left:3px solid #cc0000">
+      <div class="kpi-label">Acción urgente</div>
+      <div class="kpi-val" style="color:#cc0000;font-size:22px">${rojas}</div>
+      <div class="kpi-sub">familias con colores en rojo</div>
+    </div>
+    <div class="kpi" style="border-left:3px solid #d97706">
+      <div class="kpi-label">Revisar</div>
+      <div class="kpi-val" style="color:#d97706;font-size:22px">${naranjas}</div>
+      <div class="kpi-sub">familias con stock bajo</div>
+    </div>
+    <div class="kpi" style="border-left:3px solid #16a34a">
+      <div class="kpi-label">Todo bien</div>
+      <div class="kpi-val" style="color:#16a34a;font-size:22px">${verdes}</div>
+      <div class="kpi-sub">familias con buen stock</div>
+    </div>
+    <div class="kpi" style="border-left:3px solid #aaa">
+      <div class="kpi-label">Total familias</div>
+      <div class="kpi-val" style="color:#555;font-size:22px">${fams.length}</div>
+      <div class="kpi-sub">en inventario</div>
+    </div>`;
+}
+
+function poblarFamStock(){
+  calcularStockPorFamilia();
+  renderStockKPIs();
+  filtrarStockFams();
+}
+
+function filtrarStockFams(){
+  const q=(document.getElementById('search-stock-fam')?.value||'').toLowerCase();
+  const ord=document.getElementById('sort-stock-fam')?.value||'urgente';
+  let fams=Object.entries(stockPorFamilia).map(([nombre,d])=>({nombre,...d}));
+  if(q)fams=fams.filter(f=>f.nombre.toLowerCase().includes(q));
+  if(ord==='urgente')fams.sort((a,b)=>a.peorPrioridad-b.peorPrioridad||b.rojos-a.rojos);
+  else if(ord==='nombre')fams.sort((a,b)=>a.nombre.localeCompare(b.nombre));
+  else if(ord==='metros')fams.sort((a,b)=>b.totalMetros-a.totalMetros);
+  renderStockFams(fams);
+}
+
+function renderStockFams(fams){
+  const grid=document.getElementById('stock-fam-grid');
+  if(!grid)return;
+  if(!fams.length){grid.innerHTML='<div class="empty">Sin resultados</div>';return;}
+  grid.innerHTML=fams.map(f=>{
+    const color=f.peorPrioridad===0||f.peorPrioridad===1?'#cc0000':f.peorPrioridad===2?'#d97706':'#16a34a';
+    const bg=f.peorPrioridad===0||f.peorPrioridad===1?'#fff5f5':f.peorPrioridad===2?'#fffbf0':'#f5fff8';
+    const border=f.peorPrioridad===0||f.peorPrioridad===1?'#ffd0d0':f.peorPrioridad===2?'#f0d060':'#c0e8c0';
+    const emoji=f.peorPrioridad===0||f.peorPrioridad===1?'🔴':f.peorPrioridad===2?'🟠':'🟢';
+    const alertas=f.rojos>0?`<span style="font-size:10px;color:#cc0000;font-weight:600">${f.rojos} color${f.rojos>1?'es':''} sin stock/crítico${f.rojos>1?'s':''}</span>`:
+      f.naranjas>0?`<span style="font-size:10px;color:#d97706;font-weight:600">${f.naranjas} color${f.naranjas>1?'es':''} con stock bajo</span>`:
+      `<span style="font-size:10px;color:#16a34a">Todo en orden</span>`;
+    return`<div onclick="verDetalleStock('${f.nombre.replace(/'/g,"\'")}'')" 
+      style="background:${bg};border:1.5px solid ${border};border-radius:10px;padding:14px 16px;cursor:pointer;transition:all 0.15s"
+      onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'"
+      onmouseout="this.style.boxShadow='none'">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div style="font-size:12px;font-weight:600;color:#111;max-width:140px;line-height:1.3">${f.nombre}</div>
+        <span style="font-size:16px">${emoji}</span>
+      </div>
+      <div style="font-size:18px;font-weight:700;color:${color};font-family:'DM Mono',monospace;margin-bottom:3px">${f.totalMetros.toLocaleString('es-MX')} m</div>
+      <div style="font-size:11px;color:#aaa;margin-bottom:8px">${f.totalColores} colores · clic para ver detalle</div>
+      ${alertas}
+    </div>`;
+  }).join('');
+}
+
+function verDetalleStock(fam){
+  document.getElementById('stock-nivel1').style.display='none';
+  document.getElementById('stock-nivel2').style.display='block';
+  document.getElementById('stock-fam-titulo').textContent=fam;
+  const d=stockPorFamilia[fam];
+  if(!d)return;
+  document.getElementById('stock-fam-resumen').textContent=`${d.totalColores} colores · ${d.totalMetros.toLocaleString('es-MX')} m totales`;
+  const colores=Object.entries(d.colores).map(([sub,c])=>({sub,metros:Math.round(c.metros),rollos:c.rollos}))
+    .sort((a,b)=>semPrioridad(a.metros)-semPrioridad(b.metros)||a.metros-b.metros);
+  document.getElementById('tbody-stock-detalle').innerHTML=colores.map(c=>{
+    const col=semColor(c.metros);
+    const bg=semBg(c.metros);
+    const lbl=semLabel(c.metros);
+    const barW=c.metros===0?0:c.metros<=200?Math.max(5,c.metros/200*25):c.metros<=1000?25+c.metros/1000*35:Math.min(100,60+c.metros/5000*40);
+    return`<tr style="background:${bg}">
+      <td style="font-weight:500;color:#111">${c.sub||'—'}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:${col}">
+        ${c.metros===0?'—':c.metros.toLocaleString('es-MX')+' m'}
       </td>
-      <td style="text-align:right;font-family:'DM Mono',monospace;color:#aaa;font-size:12px">${r.rollos>0?r.rollos+' rollos':'—'}</td>
-      <td style="text-align:center;padding:6px 8px">
-        <div style="display:flex;align-items:center;gap:6px;justify-content:center">
-          <div style="flex:1;height:8px;background:#eee;border-radius:4px;overflow:hidden;max-width:80px">
-            <div style="height:100%;width:${barW}%;background:${semColor};border-radius:4px;transition:width 0.3s"></div>
+      <td style="text-align:right;font-family:'DM Mono',monospace;color:#aaa;font-size:12px">${c.rollos>0?c.rollos+' rollos':'—'}</td>
+      <td style="padding:6px 8px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="flex:1;height:10px;background:#eee;border-radius:5px;overflow:hidden">
+            <div style="height:100%;width:${barW}%;background:${col};border-radius:5px"></div>
           </div>
-          <span style="font-size:10px;font-weight:600;color:${semColor};font-family:monospace;white-space:nowrap">${badgeLabel}</span>
+          <span style="font-size:11px;font-weight:600;color:${col};font-family:monospace;white-space:nowrap;width:80px">${lbl}</span>
         </div>
       </td>
     </tr>`;
-  }).join('')||`<tr><td colspan="5" class="empty">Sin resultados</td></tr>`;
-  const tot=stockFilt.length;
-  document.getElementById('stock-info').textContent=`${Math.min(stockPag*POR_PAG+1,tot)}–${Math.min((stockPag+1)*POR_PAG,tot)} de ${tot}`;
-  document.getElementById('stock-prev').disabled=stockPag===0;
-  document.getElementById('stock-next').disabled=stockPag>=Math.ceil(tot/POR_PAG)-1;
+  }).join('');
 }
-function cambiarStock(d){stockPag+=d;renderStock();}
+
+function volverStockFams(){
+  document.getElementById('stock-nivel2').style.display='none';
+  document.getElementById('stock-nivel1').style.display='block';
+}
+
+function filtrarStock(){filtrarStockFams();}
+function cambiarStock(d){}
 
 cargarDatos();
 </script>
