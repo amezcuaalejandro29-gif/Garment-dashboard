@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -275,7 +276,12 @@ function filtrarFams(){
   let fams=Object.entries(stockPorFamilia).map(([nombre,d])=>({nombre,...d}));
   if(q)fams=fams.filter(f=>f.nombre.toLowerCase().includes(q));
   if(ord==='metros')fams.sort((a,b)=>b.totalMetros-a.totalMetros);
-  else fams.sort((a,b)=>a.nombre.localeCompare(b.nombre,'es'));
+  else fams.sort((a,b)=>{
+    // Con stock primero, luego A-Z dentro de cada grupo
+    if(a.totalMetros>0&&b.totalMetros===0)return-1;
+    if(b.totalMetros>0&&a.totalMetros===0)return 1;
+    return a.nombre.localeCompare(b.nombre,'es');
+  });
   const grid=document.getElementById('fam-grid');
   document.getElementById('count-fam').textContent=fams.length+' familia'+(fams.length!==1?'s':'');
   if(!fams.length){grid.innerHTML='<div class="empty">Sin resultados</div>';return;}
