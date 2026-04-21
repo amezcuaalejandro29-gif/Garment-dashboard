@@ -133,8 +133,8 @@ body{font-family:'DM Sans',sans-serif;background:#f5f5f5;color:#111;min-height:1
     <div class="search-wrap" id="search-wrap-n2" style="margin-bottom:14px">
       <input class="search-inp" type="text" id="search-color" placeholder="🔍  Buscar color..." oninput="filtrarColores()">
       <select class="sort-select" id="sort-color" onchange="filtrarColores()">
-        <option value="nombre">A → Z</option>
         <option value="metros">Mayor stock primero</option>
+        <option value="nombre">A → Z</option>
         <option value="sin">Sin stock al final</option>
       </select>
       <span class="count-tag" id="count-color"></span>
@@ -326,7 +326,7 @@ function verDetalle(fam){
 
 function filtrarColores(){
   const q=(document.getElementById('search-color').value||'').toLowerCase();
-  const ord=document.getElementById('sort-color').value||'nombre';
+  const ord=document.getElementById('sort-color').value||'metros';
   let lista=coloresTodos.filter(c=>!q||c.sub.toLowerCase().includes(q));
 
   if(ord==='metros') lista.sort((a,b)=>b.metros-a.metros);
